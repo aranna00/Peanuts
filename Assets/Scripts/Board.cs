@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = System.Random;
 
 public class Board : MonoBehaviour
 {
@@ -12,12 +13,13 @@ public class Board : MonoBehaviour
 
     void fillBoard()
     {
+        Random random = new Random(6);
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
                 Peanut peanut = gameObject.AddComponent<Peanut>();
-                peanut.Setup();
+                peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
                 _board[x, y] = peanut;
             }
         }
@@ -31,11 +33,11 @@ public class Board : MonoBehaviour
                 foreach (var nut in match)
                 {
                     Peanut peanut = gameObject.AddComponent<Peanut>();
-                    peanut.Setup();
+                    peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
                     _board[(int) nut.x, (int) nut.y] = peanut;
                 }
             }
-
+            
             matches = getMatches();
         }
     }
@@ -114,9 +116,263 @@ public class Board : MonoBehaviour
         return matches;
     }
 
+    int GetPossibleMatches()
+    {
+        List<List<Peanut>> matches = new List<List<Peanut>>();
+        List<List<Peanut>> horMatches = new List<List<Peanut>>();
+        List<List<Peanut>> verMatches = new List<List<Peanut>>();
+        matches.Add(new List<Peanut>());
+
+        int totalMatches = 0;
+
+        // check horizontal
+        for (int y = 0; y < _board.GetLength(1); y++)
+        {
+            for (int x = 0; x < _board.GetLength(0) - 2; x++)
+            {
+                List<Peanut> orgMatches = new List<Peanut>();
+                if (
+                    x + 2 < _board.GetLength(0)
+                    && x - 1 > 0
+                    && _board[x, y].Type != _board[x - 1, y].Type
+                    && _board[x, y].Type == _board[x + 1, y].Type
+                    && _board[x, y].Type != _board[x + 2, y].Type
+                )
+                {
+                    orgMatches.Add(_board[x, y]);
+                    orgMatches.Add(_board[x + 1, y]);
+                }
+                else if (
+                    x + 2 < _board.GetLength(0)
+                    && _board[x, y].Type != _board[x + 1, y].Type
+                    && _board[x, y].Type == _board[x + 2, y].Type
+                )
+                {
+                    orgMatches.Add(_board[x, y]);
+                    orgMatches.Add(_board[x + 2, y]);
+                    // check above middle
+                    if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x + 1, y + 1].Type)
+                    {
+                        List<Peanut> currentMatch = new List<Peanut>();
+                        currentMatch.AddRange(orgMatches);
+                        currentMatch.Add(_board[x + 1, y + 1]);
+                        horMatches.Add(currentMatch);
+                        totalMatches++;
+                    }
+                    
+                    // check below middle
+                    if (y - 1 >0 && _board[x, y].Type == _board[x + 1, y - 1].Type)
+                    {
+                        List<Peanut> currentMatch = new List<Peanut>();
+                        currentMatch.AddRange(orgMatches);
+                        currentMatch.Add(_board[x + 1, y - 1]);
+                        horMatches.Add(currentMatch);
+                        totalMatches++;
+                    }
+                    continue;
+                }
+                else
+                {
+                    continue;
+                }
+
+                // check 2 left
+                if (x - 2 > 0 && _board[x, y].Type == _board[x - 2, y].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x - 2, y]);
+                    horMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 left 1 above
+                if (y - 1 > 0 && _board[x, y].Type == _board[x - 1, y - 1].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x - 1, y - 1]);
+                    horMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 left 1 below
+                if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x - 1, y + 1].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x - 1, y + 1]);
+                    horMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 2 right
+                if (x + 3 < _board.GetLength(0) && _board[x, y].Type == _board[x + 3, y].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x + 3, y]);
+                    horMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 right 1 above
+                if (y - 1 > 0 && _board[x, y].Type == _board[x + 2, y - 1].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x + 2, y - 1]);
+                    horMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 rigth 1 below
+                if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x + 2, y + 1].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x + 2, y + 1]);
+                    horMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+            }
+        }
+
+        foreach (List<Peanut> peanuts in horMatches)
+        {
+            foreach (Peanut peanut in peanuts)
+            {
+                peanut.GObject.GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+            }
+        }
+
+        for (int x = 0; x < _board.GetLength(0); x++)
+        {
+            for (int y = 0; y < _board.GetLength(1) - 2; y++)
+            {
+                List<Peanut> orgMatches = new List<Peanut>();
+                if (
+                    y + 2 < _board.GetLength(1)
+                    && y - 1 > 0
+                    && _board[x, y].Type != _board[x, y - 1].Type
+                    && _board[x, y].Type == _board[x, y + 1].Type
+                    && _board[x, y].Type != _board[x, y + 2].Type
+                )
+                {
+                    orgMatches.Add(_board[x, y]);
+                    orgMatches.Add(_board[x, y + 1]);
+                }
+                else if (
+                    y + 2 < _board.GetLength(0)
+                    && _board[x, y].Type != _board[x, y + 1].Type
+                    && _board[x, y].Type == _board[x, y + 2].Type
+                )
+                {
+                    orgMatches.Add(_board[x, y]);
+                    orgMatches.Add(_board[x, y+2]);
+                    
+                    // check right middle
+                    if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 1].Type)
+                    {
+                        List<Peanut> currentMatch = new List<Peanut>();
+                        currentMatch.AddRange(orgMatches);
+                        currentMatch.Add(_board[x + 1, y + 1]);
+                        verMatches.Add(currentMatch);
+                        totalMatches++;
+                    }
+                    
+                    // check left middle
+                    if (x - 1 >0 && _board[x, y].Type == _board[x - 1, y + 1].Type)
+                    {
+                        List<Peanut> currentMatch = new List<Peanut>();
+                        currentMatch.AddRange(orgMatches);
+                        currentMatch.Add(_board[x - 1, y + 1]);
+                        verMatches.Add(currentMatch);
+                        totalMatches++;
+                    }
+                    continue;
+                }
+                else
+                {
+                    continue;
+                }
+
+                // check 2 below
+                if (y - 2 > 0 && _board[x, y].Type == _board[x, y - 2].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x, y - 2]);
+                    verMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 below 1 left
+                if (x - 1 > 0 && _board[x, y].Type == _board[x - 1, y - 1].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x - 1, y - 1]);
+                    verMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 below 1 right
+                if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y - 1].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x + 1, y - 1]);
+                    verMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 3 above
+                if (y + 3 < _board.GetLength(1) && _board[x, y].Type == _board[x, y + 3].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x, y + 3]);
+                    verMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 above 1 left
+                if (x - 1 > 0 && _board[x, y].Type == _board[x - 1, y + 2].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x - 1, y + 2]);
+                    verMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+
+                // check 1 above 1 right
+                if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 2].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x + 1, y + 2]);
+                    verMatches.Add(currentMatch);
+                    totalMatches++;
+                }
+            }
+        }
+
+        foreach (List<Peanut> peanuts in verMatches)
+        {
+            foreach (Peanut peanut in peanuts)
+            {
+                peanut.GObject.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            }
+        }
+
+        return totalMatches;
+    }
+
     public void removeNut(Vector2 position)
     {
-        for (int i = (int)position.y; i < _board.GetLength(1) - 1; i++)
+        for (int i = (int) position.y; i < _board.GetLength(1) - 1; i++)
         {
             _board[(int) position.x, i] = _board[(int) position.x, i + 1];
         }
@@ -124,7 +380,7 @@ public class Board : MonoBehaviour
         Peanut peanut = gameObject.AddComponent<Peanut>();
         peanut.Setup();
         _board[(int) position.x, _board.GetLength(1) - 1] = peanut;
-        
+
         Debug.Log("nut removed");
         drawBoard();
     }
@@ -144,6 +400,7 @@ public class Board : MonoBehaviour
         spriteRenderer.sortingOrder = 0;
         spriteRenderer.sortingLayerName = "Game";
         spriteRenderer.sprite = sprite;
+        nut.GObject = go;
     }
 
     private void updateNut(Vector3 position, GameObject nut)
@@ -215,13 +472,14 @@ public class Board : MonoBehaviour
 
         fillBoard();
 
-        Debug.Log(getMatches().Count + " matches found");
-        
         drawBoard();
-        
-        removeNut(new Vector2(0,0));
+
+        Debug.Log(getMatches().Count + " matches found");
+        Debug.Log(GetPossibleMatches() + " possible matches found");
+
+//        removeNut(new Vector2(0, 0));
     }
-    
+
     private void update()
     {
         RectTransform rt = _boardObject.GetComponent<RectTransform>();
@@ -241,4 +499,3 @@ public class Board : MonoBehaviour
         }
     }
 }
-

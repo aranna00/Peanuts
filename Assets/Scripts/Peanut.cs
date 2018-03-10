@@ -2,8 +2,9 @@
 
 public class Peanut : MonoBehaviour
 {
-
-    private static readonly string[] _types = {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pine", "Pistachio", "Walnut"};
+    public GameObject GameObject;
+    
+    public static readonly string[] NutTypes = {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pine", "Pistachio", "Walnut"};
 
     public string _type;
 
@@ -12,8 +13,15 @@ public class Peanut : MonoBehaviour
         get { return _type; }
     }
 
+    public GameObject GObject { get; set; }
+
     public void Setup()
     {
-        _type = _types[Random.Range(0, _types.Length)];
+        _type = NutTypes[Random.Range(0, NutTypes.Length)];
+    }
+    public void Setup(int seed)
+    {
+        Random.seed = seed;
+        _type = NutTypes[Random.Range(0, NutTypes.Length)];
     }
 }
