@@ -2,8 +2,6 @@
 
 public class Peanut : MonoBehaviour
 {
-    public GameObject GameObject;
-    
     public static readonly string[] NutTypes = {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pine", "Pistachio", "Walnut"};
 
     public string _type;

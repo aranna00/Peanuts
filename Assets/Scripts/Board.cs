@@ -11,6 +11,15 @@ public class Board : MonoBehaviour
 
     private GameObject _boardObject;
 
+    private RectTransform rt;
+    float width;
+    float height;
+    float stepX;
+    float stepY;
+    private int spawnHeight;
+    
+    
+
     void fillBoard()
     {
         Random random = new Random(6);
@@ -115,8 +124,8 @@ public class Board : MonoBehaviour
 
         return matches;
     }
-
-    int GetPossibleMatches()
+    
+     public int GetPossibleMatches()
     {
         List<List<Peanut>> matches = new List<List<Peanut>>();
         List<List<Peanut>> horMatches = new List<List<Peanut>>();
@@ -370,19 +379,19 @@ public class Board : MonoBehaviour
         return totalMatches;
     }
 
-    public void removeNut(Vector2 position)
+    public void removeNut(Vector2Int position)
     {
-        for (int i = (int) position.y; i < _board.GetLength(1) - 1; i++)
+        float lastX = _board[position.x, position.y].GObject.transform.localPosition.x;
+        Destroy(_board[position.x, position.y].GObject);
+        for (int i = position.y; i < _board.GetLength(1) - 1; i++)
         {
-            _board[(int) position.x, i] = _board[(int) position.x, i + 1];
+            _board[position.x, i] = _board[position.x, i + 1];
         }
 
         Peanut peanut = gameObject.AddComponent<Peanut>();
         peanut.Setup();
-        _board[(int) position.x, _board.GetLength(1) - 1] = peanut;
-
-        Debug.Log("nut removed");
-        drawBoard();
+        _board[position.x, _board.GetLength(1) - 1] = peanut;
+        drawNut(new Vector3(lastX,spawnHeight,1), peanut);
     }
 
     private void drawNut(Vector3 position, Peanut nut)
@@ -405,7 +414,7 @@ public class Board : MonoBehaviour
 
     private void updateNut(Vector3 position, GameObject nut)
     {
-        nut.transform.position = position;
+        nut.transform.localPosition = Vector3.MoveTowards(nut.transform.localPosition,position,4);
     }
 
     private void drawGrid(Vector3 position, Vector2 size)
@@ -429,12 +438,6 @@ public class Board : MonoBehaviour
 
     private void drawBoard()
     {
-        RectTransform rt = _boardObject.GetComponent<RectTransform>();
-        float width = rt.rect.width;
-        float height = rt.rect.height;
-        float stepX = width / _board.GetLength(0);
-        float stepY = height / _board.GetLength(1);
-
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
@@ -444,7 +447,7 @@ public class Board : MonoBehaviour
                 drawNut(new Vector3(drawX, drawY, 1), _board[x, y]);
                 if ((x + y) % 2 == 0)
                 {
-                    drawGrid(new Vector3(drawX, drawY, 1), new Vector2(stepX, stepY));
+                    drawGrid(new Vector3(drawX, drawY, 1), new Vector2Int((int) stepX, (int) stepY));
                 }
             }
         }
@@ -462,6 +465,13 @@ public class Board : MonoBehaviour
     {
         //set board gameobject as private variable
         _boardObject = GameObject.Find("Board");
+        //set board info
+        rt = _boardObject.GetComponent<RectTransform>();
+        width = rt.rect.width;
+        height = rt.rect.height;
+        stepX = width / _board.GetLength(0);
+        stepY = height / _board.GetLength(1);
+        spawnHeight = (int) (height/2 + stepY/2);
         //load all peanut images
         loadImages();
     }
@@ -472,30 +482,30 @@ public class Board : MonoBehaviour
 
         fillBoard();
 
-        drawBoard();
-
         Debug.Log(getMatches().Count + " matches found");
-        Debug.Log(GetPossibleMatches() + " possible matches found");
-
-//        removeNut(new Vector2(0, 0));
+        
+        drawBoard();
     }
 
-    private void update()
+    private void Update()
     {
-        RectTransform rt = _boardObject.GetComponent<RectTransform>();
-        float width = rt.rect.width;
-        float height = rt.rect.height;
-        float stepX = width / _board.GetLength(0);
-        float stepY = height / _board.GetLength(1);
-
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
                 float drawX = stepX * x - width / 2 + stepX / 2;
                 float drawY = stepY * y - height / 2 + stepY / 2;
-//                updateNut(new Vector3(drawX, drawY, 1), _board[x, y]);
+                if (_board[x, y].transform.localPosition != new Vector3(drawX, drawY, 1))
+                {
+                    updateNut(new Vector3(drawX, drawY, 1), _board[x, y].GObject);   
+                }
             }
         }
     }
+
+    private void OnMouseDown()
+    {
+        removeNut(new Vector2Int(2,2));
+    }
 }
+
