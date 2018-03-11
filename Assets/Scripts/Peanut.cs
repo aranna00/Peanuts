@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
+using UnityEngine.XR.WSA;
 
 public class Peanut : MonoBehaviour
 {
     public static readonly string[] NutTypes = {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pine", "Pistachio", "Walnut"};
 
     public string _type;
+
+    public Vector2Int Position;
 
     public string Type
     {
@@ -21,5 +24,10 @@ public class Peanut : MonoBehaviour
     {
         Random.seed = seed;
         _type = NutTypes[Random.Range(0, NutTypes.Length)];
+    }
+
+    private void OnMouseDown()
+    {
+        GameObject.Find("Board").GetComponent<Board>().removeNut(Position);
     }
 }

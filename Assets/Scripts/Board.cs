@@ -12,13 +12,10 @@ public class Board : MonoBehaviour
     private GameObject _boardObject;
 
     private RectTransform rt;
-    float width;
-    float height;
-    float stepX;
-    float stepY;
-    private int spawnHeight;
-    
-    
+    private float width, height, stepX, stepY, spawnHeight;
+    private float checkMatchDelay = 1f;
+    private float timeLeft;
+
 
     void fillBoard()
     {
@@ -27,13 +24,11 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
-                Peanut peanut = gameObject.AddComponent<Peanut>();
-                peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
-                _board[x, y] = peanut;
+                addNut(new Vector2Int(x,y));
             }
         }
 
-        List<List<Vector2>> matches = getMatches();
+        List<List<Vector2Int>> matches = getMatches();
 
         while (matches.Count != 0)
         {
@@ -41,20 +36,45 @@ public class Board : MonoBehaviour
             {
                 foreach (var nut in match)
                 {
-                    Peanut peanut = gameObject.AddComponent<Peanut>();
-                    peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
-                    _board[(int) nut.x, (int) nut.y] = peanut;
+                    addNut(nut);
                 }
             }
-            
+
             matches = getMatches();
         }
     }
 
-    List<List<Vector2>> getMatches()
+    private Peanut addNut(Vector2Int pos)
     {
-        List<List<Vector2>> matches = new List<List<Vector2>>();
-        matches.Add(new List<Vector2>());
+        Random random = new Random(6);
+        
+        GameObject go = new GameObject();
+        Peanut peanut = go.AddComponent<Peanut>();
+//        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
+        peanut.Setup();
+        peanut.Position = pos;
+        _board[pos.x, pos.y] = peanut;
+
+        string imageToLoad = "Sprites/Nuts/" + peanut.Type;
+        Sprite sprite = Resources.Load(imageToLoad, typeof(Sprite)) as Sprite;
+
+        go.name = "Nut";
+        go.transform.SetParent(_boardObject.transform, false);
+
+        SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
+        spriteRenderer.sortingOrder = 0;
+        spriteRenderer.sortingLayerName = "Game";
+        spriteRenderer.sprite = sprite;
+        peanut.GObject = go;
+        peanut.GObject.AddComponent<CircleCollider2D>();
+
+        return peanut;
+    }
+
+    List<List<Vector2Int>> getMatches()
+    {
+        List<List<Vector2Int>> matches = new List<List<Vector2Int>>();
+        matches.Add(new List<Vector2Int>());
 
         int totalMatches = 0;
 
@@ -67,10 +87,10 @@ public class Board : MonoBehaviour
                 {
                     if (matches[totalMatches].Count == 0)
                     {
-                        matches[totalMatches].Add(new Vector2(x, y));
+                        matches[totalMatches].Add(new Vector2Int(x, y));
                     }
 
-                    matches[totalMatches].Add(new Vector2(x, y));
+                    matches[totalMatches].Add(new Vector2Int(x + 1, y));
                     newAdded = true;
                     x++;
                 }
@@ -80,11 +100,12 @@ public class Board : MonoBehaviour
                     if (matches.Last().Count < 3)
                     {
                         matches.RemoveAt(totalMatches);
-                        totalMatches--;
                     }
-
-                    matches.Add(new List<Vector2>());
-                    totalMatches++;
+                    else
+                    {
+                        totalMatches++;   
+                    }
+                    matches.Add(new List<Vector2Int>());
                 }
             }
         }
@@ -98,10 +119,10 @@ public class Board : MonoBehaviour
                 {
                     if (matches[totalMatches].Count == 0)
                     {
-                        matches[totalMatches].Add(new Vector2(x, y));
+                        matches[totalMatches].Add(new Vector2Int(x, y));
                     }
 
-                    matches[totalMatches].Add(new Vector2(x, y));
+                    matches[totalMatches].Add(new Vector2Int(x, y + 1));
                     newAdded = true;
                     y++;
                 }
@@ -111,11 +132,12 @@ public class Board : MonoBehaviour
                     if (matches.Last().Count < 3)
                     {
                         matches.RemoveAt(totalMatches);
-                        totalMatches--;
                     }
-
-                    matches.Add(new List<Vector2>());
-                    totalMatches++;
+                    else
+                    {
+                        totalMatches++;   
+                    }
+                    matches.Add(new List<Vector2Int>());
                 }
             }
         }
@@ -124,8 +146,8 @@ public class Board : MonoBehaviour
 
         return matches;
     }
-    
-     public int GetPossibleMatches()
+
+    public int GetPossibleMatches()
     {
         List<List<Peanut>> matches = new List<List<Peanut>>();
         List<List<Peanut>> horMatches = new List<List<Peanut>>();
@@ -168,9 +190,9 @@ public class Board : MonoBehaviour
                         horMatches.Add(currentMatch);
                         totalMatches++;
                     }
-                    
+
                     // check below middle
-                    if (y - 1 >0 && _board[x, y].Type == _board[x + 1, y - 1].Type)
+                    if (y - 1 > 0 && _board[x, y].Type == _board[x + 1, y - 1].Type)
                     {
                         List<Peanut> currentMatch = new List<Peanut>();
                         currentMatch.AddRange(orgMatches);
@@ -178,6 +200,7 @@ public class Board : MonoBehaviour
                         horMatches.Add(currentMatch);
                         totalMatches++;
                     }
+
                     continue;
                 }
                 else
@@ -278,8 +301,8 @@ public class Board : MonoBehaviour
                 )
                 {
                     orgMatches.Add(_board[x, y]);
-                    orgMatches.Add(_board[x, y+2]);
-                    
+                    orgMatches.Add(_board[x, y + 2]);
+
                     // check right middle
                     if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 1].Type)
                     {
@@ -289,9 +312,9 @@ public class Board : MonoBehaviour
                         verMatches.Add(currentMatch);
                         totalMatches++;
                     }
-                    
+
                     // check left middle
-                    if (x - 1 >0 && _board[x, y].Type == _board[x - 1, y + 1].Type)
+                    if (x - 1 > 0 && _board[x, y].Type == _board[x - 1, y + 1].Type)
                     {
                         List<Peanut> currentMatch = new List<Peanut>();
                         currentMatch.AddRange(orgMatches);
@@ -299,6 +322,7 @@ public class Board : MonoBehaviour
                         verMatches.Add(currentMatch);
                         totalMatches++;
                     }
+
                     continue;
                 }
                 else
@@ -379,42 +403,27 @@ public class Board : MonoBehaviour
         return totalMatches;
     }
 
-    public void removeNut(Vector2Int position)
+    public void removeNut(Vector2Int position) //TODO Delay spawn when multiple nuts are spawned on the same row.
     {
-        float lastX = _board[position.x, position.y].GObject.transform.localPosition.x;
+        float lastX = _board[position.x, position.y].GObject.transform.position.x;
         Destroy(_board[position.x, position.y].GObject);
         for (int i = position.y; i < _board.GetLength(1) - 1; i++)
         {
             _board[position.x, i] = _board[position.x, i + 1];
+            _board[position.x, i].Position = new Vector2Int(position.x, i);
         }
-
-        Peanut peanut = gameObject.AddComponent<Peanut>();
-        peanut.Setup();
-        _board[position.x, _board.GetLength(1) - 1] = peanut;
-        drawNut(new Vector3(lastX,spawnHeight,1), peanut);
+        Peanut peanut = addNut(new Vector2Int(position.x, _board.GetLength(1) - 1));
+        drawNut(new Vector3(lastX, spawnHeight, 1), peanut);
     }
 
     private void drawNut(Vector3 position, Peanut nut)
     {
-        GameObject go = new GameObject();
-
-        string imageToLoad = "Sprites/Nuts/" + nut.Type;
-        Sprite sprite = Resources.Load(imageToLoad, typeof(Sprite)) as Sprite;
-
-        go.transform.position = position;
-        go.name = "Nut";
-        go.transform.SetParent(_boardObject.transform, false);
-
-        SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
-        spriteRenderer.sortingOrder = 0;
-        spriteRenderer.sortingLayerName = "Game";
-        spriteRenderer.sprite = sprite;
-        nut.GObject = go;
+        nut.GObject.transform.position = position;
     }
 
     private void updateNut(Vector3 position, GameObject nut)
     {
-        nut.transform.localPosition = Vector3.MoveTowards(nut.transform.localPosition,position,4);
+        nut.transform.localPosition = Vector3.MoveTowards(nut.transform.localPosition, position, 4);
     }
 
     private void drawGrid(Vector3 position, Vector2 size)
@@ -471,7 +480,7 @@ public class Board : MonoBehaviour
         height = rt.rect.height;
         stepX = width / _board.GetLength(0);
         stepY = height / _board.GetLength(1);
-        spawnHeight = (int) (height/2 + stepY/2);
+        spawnHeight = (int) (height / 2 + stepY / 2);
         //load all peanut images
         loadImages();
     }
@@ -483,11 +492,11 @@ public class Board : MonoBehaviour
         fillBoard();
 
         Debug.Log(getMatches().Count + " matches found");
-        
+
         drawBoard();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         for (int y = 0; y < _board.GetLength(1); y++)
         {
@@ -497,15 +506,33 @@ public class Board : MonoBehaviour
                 float drawY = stepY * y - height / 2 + stepY / 2;
                 if (_board[x, y].transform.localPosition != new Vector3(drawX, drawY, 1))
                 {
-                    updateNut(new Vector3(drawX, drawY, 1), _board[x, y].GObject);   
+                    updateNut(new Vector3(drawX, drawY, 1), _board[x, y].GObject);
                 }
+            }
+        }
+        
+        timeLeft -= Time.deltaTime;
+        if (timeLeft < 0)
+        {
+            List<List<Vector2Int>> matches = getMatches();
+            if (matches.Count > 0)
+            {
+                foreach (var match in matches)
+                {
+                    match.Reverse();
+                    foreach (var nut in match)
+                    {
+                        removeNut(nut);
+                    }
+                }
+
+                timeLeft = checkMatchDelay;
             }
         }
     }
 
     private void OnMouseDown()
     {
-        removeNut(new Vector2Int(2,2));
+        removeNut(new Vector2Int(2, 2));
     }
 }
-
