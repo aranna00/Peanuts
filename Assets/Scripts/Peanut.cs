@@ -29,6 +29,5 @@ public class Peanut : MonoBehaviour
     {
         Board board = GameObject.Find("Board").GetComponent<Board>();
         board.SelectNut(Position);
-        board.restartTimer();
     }
 }

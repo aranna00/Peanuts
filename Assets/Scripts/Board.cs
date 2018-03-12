@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using NUnit.Framework.Api;
-using NUnit.Framework.Constraints;
 using UnityEngine;
 using Random = System.Random;
 
@@ -49,14 +46,33 @@ public class Board : MonoBehaviour
 
             matches = getMatches();
         }
+
+        UpdatePossilbeMatches();
+
+        if (canMove.Count == 0)
+        {
+            resetBoard();
+        }
+    }
+    
+    void resetBoard()
+    {
+        for (int y = 0; y < _board.GetLength(1); y++)
+        {
+            for (int x = 0; x < _board.GetLength(0); x++)
+            {
+                removeNut(new Vector2Int(x,y),y);
+                moving = true;
+            }
+        }
     }
 
     private Peanut addNut(Vector2Int pos)
     {
         GameObject go = new GameObject();
         Peanut peanut = go.AddComponent<Peanut>();
-        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
-//        peanut.Setup();
+//        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
+        peanut.Setup();
         peanut.Position = pos;
         _board[pos.x, pos.y] = peanut;
 
@@ -69,7 +85,7 @@ public class Board : MonoBehaviour
         SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
         spriteRenderer.sortingOrder = 0;
         spriteRenderer.sortingLayerName = "Game";
-//        spriteRenderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+        spriteRenderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
         spriteRenderer.sprite = sprite;
         peanut.GObject = go;
         peanut.GObject.AddComponent<CircleCollider2D>();
@@ -411,13 +427,10 @@ public class Board : MonoBehaviour
             }
         }
 
-        Debug.Log(totalMatches + " possible matches found");
-        Debug.Log(canMove.Count + " possible moves found");
+        Debug.Log(totalMatches + " possible matches and " + canMove.Count + " possible moves found");
     }
 
-    public void
-        removeNut(Vector2Int position,
-            bool isClicked = false) //TODO Delay spawn when multiple nuts are spawned on the same row.
+    public void removeNut(Vector2Int position,int offset = 0)
     {
         float lastX = _board[position.x, position.y].GObject.transform.localPosition.x;
         Destroy(_board[position.x, position.y].GObject);
@@ -428,7 +441,7 @@ public class Board : MonoBehaviour
         }
 
         Peanut peanut = addNut(new Vector2Int(position.x, _board.GetLength(1) - 1));
-        drawNut(new Vector3(lastX, spawnHeight, 1), peanut);
+        drawNut(new Vector3(lastX, spawnHeight + offset*stepY, 1), peanut);
     }
 
     private void drawNut(Vector3 position, Peanut nut)
@@ -440,7 +453,7 @@ public class Board : MonoBehaviour
     {
         if (animate)
         {
-            nut.transform.localPosition = Vector3.MoveTowards(nut.transform.localPosition, position, 4);
+            nut.transform.localPosition = Vector3.MoveTowards(nut.transform.localPosition, position, 8);
         }
         else
         {
@@ -484,6 +497,22 @@ public class Board : MonoBehaviour
         }
     }
 
+    private void updateBoard(bool animate = true)
+    {
+        for (int y = 0; y < _board.GetLength(1); y++)
+        {
+            for (int x = 0; x < _board.GetLength(0); x++)
+            {
+                float drawX = stepX * x - width / 2 + stepX / 2;
+                float drawY = stepY * y - height / 2 + stepY / 2;
+                if (_board[x, y].transform.localPosition != new Vector3(drawX, drawY, 1))
+                {
+                    updateNut(new Vector3(drawX, drawY, 1), _board[x, y].GObject, animate);
+                }
+            }
+        }
+    }
+
     private void loadImages()
     {
         foreach (var image in _images)
@@ -519,57 +548,49 @@ public class Board : MonoBehaviour
 
         fillBoard();
 
-        Debug.Log(getMatches().Count + " matches found");
-
         drawBoard();
-
-        Debug.Log(getMatches().Count + " matches found");
-
-
-//        removeNut(new Vector2(0, 0));
+        
+        UpdatePossilbeMatches();
     }
 
     private void FixedUpdate()
     {
-        for (int y = 0; y < _board.GetLength(1); y++)
-        {
-            for (int x = 0; x < _board.GetLength(0); x++)
-            {
-                float drawX = stepX * x - width / 2 + stepX / 2;
-                float drawY = stepY * y - height / 2 + stepY / 2;
-                if (_board[x, y].transform.localPosition != new Vector3(drawX, drawY, 1))
-                {
-                    updateNut(new Vector3(drawX, drawY, 1), _board[x, y].GObject);
-                }
-            }
-        }
+        updateBoard();
 
         timeLeft -= Time.deltaTime;
-        if (!moving)
+        if (moving) //while there are still matches keep 
         {
             List<List<Vector2Int>> matches = getMatches();
             if (matches.Count > 0)
             {
                 foreach (var match in matches)
                 {
-                    match.Reverse();
-                    foreach (var nut in match)
+                    for (var i = match.Count - 1; i >= 0; i--)
                     {
-                        removeNut(nut);
+                        var nut = match[i];
+                        if (match[0].x == match[1].x)
+                        {
+                            removeNut(nut, match.Count - i - 1);
+                        }
+                        else
+                        {
+                            removeNut(nut);
+                        }
                     }
                 }
-
                 timeLeft = checkMatchDelay;
             }
-
-            
-            UpdatePossilbeMatches();
         }
-        
-        if (timeLeft < 0 && moving)
+
+        if (timeLeft < 0 && moving) //end of turn
         {
             moving = false;
             Debug.Log("Done!");
+            UpdatePossilbeMatches();
+            if (canMove.Count == 0)
+            {
+                resetBoard();
+            }
         }
     }
 
@@ -615,6 +636,8 @@ public class Board : MonoBehaviour
     {
         if (canMove.Contains(pos1) || canMove.Contains(pos2))
         {
+            restartTimer();
+            
             Peanut peanut = _board[pos1.x, pos1.y];
 
             _board[pos1.x, pos1.y] = _board[pos2.x, pos2.y];
