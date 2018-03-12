@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = System.Random;
@@ -11,15 +11,17 @@ public class Board : MonoBehaviour
 
     private GameObject _boardObject;
 
+    private List<Vector2Int> canMove = new List<Vector2Int>();
+
     private RectTransform rt;
     private float width, height, stepX, stepY, spawnHeight;
     private float checkMatchDelay = 1f;
     private float timeLeft;
+    Random random = new Random(6);
 
 
     void fillBoard()
     {
-        Random random = new Random(6);
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
@@ -46,12 +48,10 @@ public class Board : MonoBehaviour
 
     private Peanut addNut(Vector2Int pos)
     {
-        Random random = new Random(6);
-        
         GameObject go = new GameObject();
         Peanut peanut = go.AddComponent<Peanut>();
-//        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
-        peanut.Setup();
+        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
+//        peanut.Setup();
         peanut.Position = pos;
         _board[pos.x, pos.y] = peanut;
 
@@ -147,8 +147,9 @@ public class Board : MonoBehaviour
         return matches;
     }
 
-    public int GetPossibleMatches()
+    public void UpdatePossilbeMatches()
     {
+        canMove = new List<Vector2Int>();
         List<List<Peanut>> matches = new List<List<Peanut>>();
         List<List<Peanut>> horMatches = new List<List<Peanut>>();
         List<List<Peanut>> verMatches = new List<List<Peanut>>();
@@ -189,6 +190,7 @@ public class Board : MonoBehaviour
                         currentMatch.Add(_board[x + 1, y + 1]);
                         horMatches.Add(currentMatch);
                         totalMatches++;
+                        canMove.Add(new Vector2Int(x + 1, y + 1));
                     }
 
                     // check below middle
@@ -199,6 +201,7 @@ public class Board : MonoBehaviour
                         currentMatch.Add(_board[x + 1, y - 1]);
                         horMatches.Add(currentMatch);
                         totalMatches++;
+                        canMove.Add(new Vector2Int(x + 1, y - 1));
                     }
 
                     continue;
@@ -216,26 +219,29 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x - 2, y]);
                     horMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x - 2, y));
                 }
 
                 // check 1 left 1 above
-                if (y - 1 > 0 && _board[x, y].Type == _board[x - 1, y - 1].Type)
-                {
-                    List<Peanut> currentMatch = new List<Peanut>();
-                    currentMatch.AddRange(orgMatches);
-                    currentMatch.Add(_board[x - 1, y - 1]);
-                    horMatches.Add(currentMatch);
-                    totalMatches++;
-                }
-
-                // check 1 left 1 below
-                if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x - 1, y + 1].Type)
+                if (y + 1 < _board.GetLength(1)&& _board[x, y].Type == _board[x - 1, y + 1].Type)
                 {
                     List<Peanut> currentMatch = new List<Peanut>();
                     currentMatch.AddRange(orgMatches);
                     currentMatch.Add(_board[x - 1, y + 1]);
                     horMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x - 1, y + 1));
+                }
+
+                // check 1 left 1 below
+                if (y - 1 > 0  && _board[x, y].Type == _board[x - 1, y - 1].Type)
+                {
+                    List<Peanut> currentMatch = new List<Peanut>();
+                    currentMatch.AddRange(orgMatches);
+                    currentMatch.Add(_board[x - 1, y - 1]);
+                    horMatches.Add(currentMatch);
+                    totalMatches++;
+                    canMove.Add(new Vector2Int(x - 1, y - 1));
                 }
 
                 // check 2 right
@@ -246,6 +252,7 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x + 3, y]);
                     horMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x + 3, y));
                 }
 
                 // check 1 right 1 above
@@ -256,9 +263,10 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x + 2, y - 1]);
                     horMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x + 2, y - 1));
                 }
 
-                // check 1 rigth 1 below
+                // check 1 right 1 below
                 if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x + 2, y + 1].Type)
                 {
                     List<Peanut> currentMatch = new List<Peanut>();
@@ -266,15 +274,8 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x + 2, y + 1]);
                     horMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x + 2, y + 1));
                 }
-            }
-        }
-
-        foreach (List<Peanut> peanuts in horMatches)
-        {
-            foreach (Peanut peanut in peanuts)
-            {
-                peanut.GObject.GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
             }
         }
 
@@ -311,6 +312,7 @@ public class Board : MonoBehaviour
                         currentMatch.Add(_board[x + 1, y + 1]);
                         verMatches.Add(currentMatch);
                         totalMatches++;
+                        canMove.Add(new Vector2Int(x + 1, y + 1));
                     }
 
                     // check left middle
@@ -321,6 +323,7 @@ public class Board : MonoBehaviour
                         currentMatch.Add(_board[x - 1, y + 1]);
                         verMatches.Add(currentMatch);
                         totalMatches++;
+                        canMove.Add(new Vector2Int(x - 1, y + 1));
                     }
 
                     continue;
@@ -338,6 +341,7 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x, y - 2]);
                     verMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x, y - 2));
                 }
 
                 // check 1 below 1 left
@@ -348,6 +352,7 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x - 1, y - 1]);
                     verMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x - 1, y - 1));
                 }
 
                 // check 1 below 1 right
@@ -358,8 +363,10 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x + 1, y - 1]);
                     verMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x + 1, y - 1));
                 }
 
+                // TODO not working
                 // check 3 above
                 if (y + 3 < _board.GetLength(1) && _board[x, y].Type == _board[x, y + 3].Type)
                 {
@@ -368,6 +375,7 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x, y + 3]);
                     verMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x, y + 3));
                 }
 
                 // check 1 above 1 left
@@ -378,8 +386,10 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x - 1, y + 2]);
                     verMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x - 1, y + 2));
                 }
 
+                // TODO not working
                 // check 1 above 1 right
                 if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 2].Type)
                 {
@@ -388,19 +398,12 @@ public class Board : MonoBehaviour
                     currentMatch.Add(_board[x + 1, y + 2]);
                     verMatches.Add(currentMatch);
                     totalMatches++;
+                    canMove.Add(new Vector2Int(x + 1, y + 2));
                 }
             }
         }
-
-        foreach (List<Peanut> peanuts in verMatches)
-        {
-            foreach (Peanut peanut in peanuts)
-            {
-                peanut.GObject.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
-            }
-        }
-
-        return totalMatches;
+        Debug.Log(totalMatches + " possible matches found");
+        Debug.Log(canMove.Count + " possible moves found");
     }
 
     public void removeNut(Vector2Int position, bool spawnNew = true) //TODO Delay spawn when multiple nuts are spawned on the same row.
@@ -504,6 +507,11 @@ public class Board : MonoBehaviour
         Debug.Log(getMatches().Count + " matches found");
 
         drawBoard();
+
+        Debug.Log(getMatches().Count + " matches found");
+        
+
+//        removeNut(new Vector2(0, 0));
     }
 
     private void FixedUpdate()
@@ -538,11 +546,18 @@ public class Board : MonoBehaviour
 
                 timeLeft = checkMatchDelay;
             }
+            UpdatePossilbeMatches();
+
+            foreach (Vector2Int i in canMove)
+            {
+                _board[i.x, i.y].GObject.GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+            }
         }
     }
 
     private void OnMouseDown()
     {
         removeNut(new Vector2Int(2, 2));
+        timeLeft = checkMatchDelay;
     }
 }
