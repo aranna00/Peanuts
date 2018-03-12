@@ -15,8 +15,9 @@ public class Board : MonoBehaviour
 
     private RectTransform rt;
     private float width, height, stepX, stepY, spawnHeight;
-    private float checkMatchDelay = 1f;
+    private float checkMatchDelay = 0.5f;
     private float timeLeft;
+    private bool moving = false;
     Random random = new Random(6);
 
 
@@ -64,6 +65,7 @@ public class Board : MonoBehaviour
         SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
         spriteRenderer.sortingOrder = 0;
         spriteRenderer.sortingLayerName = "Game";
+//        spriteRenderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
         spriteRenderer.sprite = sprite;
         peanut.GObject = go;
         peanut.GObject.AddComponent<CircleCollider2D>();
@@ -286,7 +288,7 @@ public class Board : MonoBehaviour
                 List<Peanut> orgMatches = new List<Peanut>();
                 if (
                     y + 2 < _board.GetLength(1)
-                    && y - 1 > 0
+                    && y > 0
                     && _board[x, y].Type != _board[x, y - 1].Type
                     && _board[x, y].Type == _board[x, y + 1].Type
                     && _board[x, y].Type != _board[x, y + 2].Type
@@ -485,6 +487,7 @@ public class Board : MonoBehaviour
     public void restartTimer()
     {
         timeLeft = checkMatchDelay;
+        moving = true;
     }
 
     private void init()
@@ -551,6 +554,7 @@ public class Board : MonoBehaviour
 
                 timeLeft = checkMatchDelay;
             }
+            
             UpdatePossilbeMatches();
 
             foreach (Vector2Int i in canMove)
@@ -558,11 +562,11 @@ public class Board : MonoBehaviour
                 _board[i.x, i.y].GObject.GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
             }
         }
-    }
-
-    private void OnMouseDown()
-    {
-        removeNut(new Vector2Int(2, 2));
-        timeLeft = checkMatchDelay;
+        
+        if (timeLeft < 0 && moving)
+        {
+            moving = false;
+            Debug.Log("Done!");
+        }
     }
 }
