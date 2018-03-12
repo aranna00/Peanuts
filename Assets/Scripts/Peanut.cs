@@ -20,10 +20,9 @@ public class Peanut : MonoBehaviour
     {
         _type = NutTypes[Random.Range(0, NutTypes.Length)];
     }
-    public void Setup(int seed)
+    public void Setup(int nutNumber)
     {
-        Random.seed = seed;
-        _type = NutTypes[Random.Range(0, NutTypes.Length)];
+        _type = NutTypes[nutNumber];
     }
 
     private void OnMouseDown()
