@@ -36,7 +36,7 @@ public class Board : MonoBehaviour
             {
                 foreach (var nut in match)
                 {
-                    addNut(nut);
+                    removeNut(nut);
                 }
             }
 
@@ -403,27 +403,36 @@ public class Board : MonoBehaviour
         return totalMatches;
     }
 
-    public void removeNut(Vector2Int position) //TODO Delay spawn when multiple nuts are spawned on the same row.
+    public void removeNut(Vector2Int position, bool spawnNew = true) //TODO Delay spawn when multiple nuts are spawned on the same row.
     {
-        float lastX = _board[position.x, position.y].GObject.transform.position.x;
+        float lastX = _board[position.x, position.y].GObject.transform.localPosition.x;
         Destroy(_board[position.x, position.y].GObject);
         for (int i = position.y; i < _board.GetLength(1) - 1; i++)
         {
             _board[position.x, i] = _board[position.x, i + 1];
             _board[position.x, i].Position = new Vector2Int(position.x, i);
         }
+        
         Peanut peanut = addNut(new Vector2Int(position.x, _board.GetLength(1) - 1));
         drawNut(new Vector3(lastX, spawnHeight, 1), peanut);
     }
 
     private void drawNut(Vector3 position, Peanut nut)
     {
-        nut.GObject.transform.position = position;
+        nut.GObject.transform.localPosition = position;
     }
 
-    private void updateNut(Vector3 position, GameObject nut)
+    private void updateNut(Vector3 position, GameObject nut, bool animate = true)
     {
-        nut.transform.localPosition = Vector3.MoveTowards(nut.transform.localPosition, position, 4);
+        if (animate)
+        {
+            nut.transform.localPosition = Vector3.MoveTowards(nut.transform.localPosition, position, 4);
+        }
+        else
+        {
+            nut.transform.localPosition = position;
+        }
+        
     }
 
     private void drawGrid(Vector3 position, Vector2 size)
@@ -472,6 +481,7 @@ public class Board : MonoBehaviour
 
     private void init()
     {
+        
         //set board gameobject as private variable
         _boardObject = GameObject.Find("Board");
         //set board info
