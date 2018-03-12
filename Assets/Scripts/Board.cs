@@ -15,6 +15,7 @@ public class Board : MonoBehaviour
     private float width, height, stepX, stepY, spawnHeight;
     private float checkMatchDelay = 1f;
     private float timeLeft;
+    Random random = new Random(6);
 
 
     void fillBoard()
@@ -46,12 +47,10 @@ public class Board : MonoBehaviour
 
     private Peanut addNut(Vector2Int pos)
     {
-        Random random = new Random(6);
-        
         GameObject go = new GameObject();
         Peanut peanut = go.AddComponent<Peanut>();
-//        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
-        peanut.Setup();
+        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
+//        peanut.Setup();
         peanut.Position = pos;
         _board[pos.x, pos.y] = peanut;
 
@@ -479,6 +478,11 @@ public class Board : MonoBehaviour
         }
     }
 
+    public void restartTimer()
+    {
+        timeLeft = checkMatchDelay;
+    }
+
     private void init()
     {
         
@@ -539,10 +543,5 @@ public class Board : MonoBehaviour
                 timeLeft = checkMatchDelay;
             }
         }
-    }
-
-    private void OnMouseDown()
-    {
-        removeNut(new Vector2Int(2, 2));
     }
 }
