@@ -482,6 +482,11 @@ public class Board : MonoBehaviour
         }
     }
 
+    public void restartTimer()
+    {
+        timeLeft = checkMatchDelay;
+    }
+
     private void init()
     {
         
