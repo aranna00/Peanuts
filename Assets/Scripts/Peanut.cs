@@ -29,7 +29,7 @@ public class Peanut : MonoBehaviour
     private void OnMouseDown()
     {
         Board board = GameObject.Find("Board").GetComponent<Board>();
-        board.removeNut(Position);
+        board.SelectNut(Position);
         board.restartTimer();
     }
 }
