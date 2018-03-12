@@ -545,7 +545,7 @@ public class Board : MonoBehaviour
         }
 
         timeLeft -= Time.deltaTime;
-        if (timeLeft < 0)
+        if (!moving)
         {
             List<List<Vector2Int>> matches = getMatches();
             if (matches.Count > 0)
@@ -564,6 +564,12 @@ public class Board : MonoBehaviour
 
             
             UpdatePossilbeMatches();
+        }
+        
+        if (timeLeft < 0 && moving)
+        {
+            moving = false;
+            Debug.Log("Done!");
         }
     }
 
@@ -602,12 +608,6 @@ public class Board : MonoBehaviour
             _selectedNut = position;
             _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color =
                 new Color(0, 255, 0);
-        }
-        
-        if (timeLeft < 0 && moving)
-        {
-            moving = false;
-            Debug.Log("Done!");
         }
     }
 
