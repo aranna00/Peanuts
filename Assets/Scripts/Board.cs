@@ -173,11 +173,6 @@ public class Board : MonoBehaviour
 
     public void UpdatePossilbeMatches()
     {
-        foreach (Vector2Int i in canMove)
-        {
-            _board[i.x, i.y].GObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
-        }
-
         canMove = new List<Vector2Int>();
 
         // check horizontal
@@ -348,11 +343,6 @@ public class Board : MonoBehaviour
         }
 
         Debug.Log(canMove.Count + " possible moves found");
-
-        foreach (Vector2Int i in canMove)
-        {
-            _board[i.x, i.y].GObject.GetComponent<SpriteRenderer>().color = new Color(0, 0, 255);
-        }
     }
 
     public void removeNut(Vector2Int position, int offset = 0)
