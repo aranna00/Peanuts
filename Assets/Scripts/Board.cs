@@ -6,69 +6,72 @@ using Random = System.Random;
 
 public class Board : MonoBehaviour
 {
-    private readonly Peanut[,] _board = new Peanut[8, 8];
-
-    private List<string> _images = new List<string>();
-
+    // Board settings
+    [SerializeField] private float _checkMatchDelay = 0.3f;
+    
+    // Board Game Objects
     private GameObject _boardObject;
     private GameScore _score;
-
-    private List<Vector2Int> canMove = new List<Vector2Int>();
+    private RectTransform _rt;
+    
+    // Board Content
+    private readonly Peanut[,] _board = new Peanut[8, 8];
+    
+    // Board variables
+    private readonly List<string> _images = new List<string>();
+    private List<Vector2Int> _canMove = new List<Vector2Int>();
     private Vector2Int _selectedNut = new Vector2Int(-1, -1);
+    private float _width, _height, _stepX, _stepY, _spawnHeight, _timeLeft;
+    private bool _moving;
+    
+    // Debug Variables
+    Random _random = new Random(15);
 
-    private RectTransform rt;
-    private float width, height, stepX, stepY, spawnHeight;
-    private float checkMatchDelay = 0.3f;
-    private float timeLeft;
-    private bool moving;
-    Random random = new Random(15);
-
-    void fillBoard()
+    void FillBoard()
     {
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
-                addNut(new Vector2Int(x, y));
+                AddNut(new Vector2Int(x, y));
             }
         }
 
-        List<List<Vector2Int>> matches = getMatches();
+        List<List<Vector2Int>> matches = GetMatches();
 
-        while (matches.Count != 0)
+        while (GetMatches().Count != 0)
         {
             foreach (var match in matches)
             {
                 foreach (var nut in match)
                 {
-                    removeNut(nut);
+                    RemoveNut(nut);
                 }
             }
-
-            matches = getMatches();
+            matches = GetMatches();
         }
 
         UpdatePossilbeMatches();
 
-        if (canMove.Count == 0)
+        if (_canMove.Count == 0)
         {
-            resetBoard();
+            ResetBoard();
         }
     }
 
-    void resetBoard()
+    void ResetBoard()
     {
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
-                removeNut(new Vector2Int(x, y), y);
-                restartTimer(1);
+                RemoveNut(new Vector2Int(x, y), y);
+                RestartTimer(1);
             }
         }
     }
 
-    private Peanut addNut(Vector2Int pos)
+    private Peanut AddNut(Vector2Int pos)
     {
         GameObject go = new GameObject();
         Peanut peanut = go.AddComponent<Peanut>();
@@ -94,7 +97,7 @@ public class Board : MonoBehaviour
         return peanut;
     }
 
-    List<List<Vector2Int>> getMatches()
+    public List<List<Vector2Int>> GetMatches()
     {
         List<List<Vector2Int>> matches = new List<List<Vector2Int>>();
         matches.Add(new List<Vector2Int>());
@@ -172,9 +175,9 @@ public class Board : MonoBehaviour
         return matches;
     }
 
-    public void UpdatePossilbeMatches()
+    private void UpdatePossilbeMatches()
     {
-        canMove = new List<Vector2Int>();
+        _canMove = new List<Vector2Int>();
 
         // check horizontal
         for (int y = 0; y < _board.GetLength(1); y++)
@@ -188,7 +191,7 @@ public class Board : MonoBehaviour
                         // check 2 left
                         if (_board[x, y].Type == _board[x - 2, y].Type)
                         {
-                            canMove.Add(new Vector2Int(x - 2, y));
+                            _canMove.Add(new Vector2Int(x - 2, y));
                         }
                     }
 
@@ -197,7 +200,7 @@ public class Board : MonoBehaviour
                         // check 1 left 1 above
                         if (_board[x, y].Type == _board[x - 1, y + 1].Type)
                         {
-                            canMove.Add(new Vector2Int(x - 1, y + 1));
+                            _canMove.Add(new Vector2Int(x - 1, y + 1));
                         }
                     }
 
@@ -206,7 +209,7 @@ public class Board : MonoBehaviour
                         // check 1 left 1 below
                         if (_board[x, y].Type == _board[x - 1, y - 1].Type)
                         {
-                            canMove.Add(new Vector2Int(x - 1, y - 1));
+                            _canMove.Add(new Vector2Int(x - 1, y - 1));
                         }
                     }
 
@@ -215,7 +218,7 @@ public class Board : MonoBehaviour
                         // check 2 right
                         if (_board[x, y].Type == _board[x + 3, y].Type)
                         {
-                            canMove.Add(new Vector2Int(x + 3, y));
+                            _canMove.Add(new Vector2Int(x + 3, y));
                         }
                     }
 
@@ -224,7 +227,7 @@ public class Board : MonoBehaviour
                         // check 1 right 1 above
                         if (_board[x, y].Type == _board[x + 2, y - 1].Type)
                         {
-                            canMove.Add(new Vector2Int(x + 2, y - 1));
+                            _canMove.Add(new Vector2Int(x + 2, y - 1));
                         }
                     }
 
@@ -233,7 +236,7 @@ public class Board : MonoBehaviour
                         // check 1 right 1 below
                         if (_board[x, y].Type == _board[x + 2, y + 1].Type)
                         {
-                            canMove.Add(new Vector2Int(x + 2, y + 1));
+                            _canMove.Add(new Vector2Int(x + 2, y + 1));
                         }
                     }
                 }
@@ -245,13 +248,13 @@ public class Board : MonoBehaviour
                     // check above middle
                     if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x + 1, y + 1].Type)
                     {
-                        canMove.Add(new Vector2Int(x + 1, y + 1));
+                        _canMove.Add(new Vector2Int(x + 1, y + 1));
                     }
 
                     // check below middle
                     if (y - 1 >= 0 && _board[x, y].Type == _board[x + 1, y - 1].Type)
                     {
-                        canMove.Add(new Vector2Int(x + 1, y - 1));
+                        _canMove.Add(new Vector2Int(x + 1, y - 1));
                     }
                 }
             }
@@ -269,7 +272,7 @@ public class Board : MonoBehaviour
                         // check 2 below
                         if (_board[x, y].Type == _board[x, y - 2].Type)
                         {
-                            canMove.Add(new Vector2Int(x, y - 2));
+                            _canMove.Add(new Vector2Int(x, y - 2));
                         }
                     }
 
@@ -280,7 +283,7 @@ public class Board : MonoBehaviour
                             // check 1 below 1 left
                             if (_board[x, y].Type == _board[x - 1, y - 1].Type)
                             {
-                                canMove.Add(new Vector2Int(x - 1, y - 1));
+                                _canMove.Add(new Vector2Int(x - 1, y - 1));
                             }
                         }
 
@@ -289,7 +292,7 @@ public class Board : MonoBehaviour
                             // check 1 below 1 right
                             if (_board[x, y].Type == _board[x + 1, y - 1].Type)
                             {
-                                canMove.Add(new Vector2Int(x + 1, y - 1));
+                                _canMove.Add(new Vector2Int(x + 1, y - 1));
                             }
                         }
                     }
@@ -299,7 +302,7 @@ public class Board : MonoBehaviour
                         // check 2 above
                         if (_board[x, y].Type == _board[x, y + 3].Type)
                         {
-                            canMove.Add(new Vector2Int(x, y + 3));
+                            _canMove.Add(new Vector2Int(x, y + 3));
                         }
                     }
 
@@ -310,7 +313,7 @@ public class Board : MonoBehaviour
                             // check 1 above 1 left
                             if (_board[x, y].Type == _board[x - 1, y + 2].Type)
                             {
-                                canMove.Add(new Vector2Int(x - 1, y + 2));
+                                _canMove.Add(new Vector2Int(x - 1, y + 2));
                             }
                         }
 
@@ -319,7 +322,7 @@ public class Board : MonoBehaviour
                             // check 1 above 1 right
                             if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 2].Type)
                             {
-                                canMove.Add(new Vector2Int(x + 1, y + 2));
+                                _canMove.Add(new Vector2Int(x + 1, y + 2));
                             }
                         }
                     }
@@ -332,29 +335,29 @@ public class Board : MonoBehaviour
                     // check right middle
                     if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 1].Type)
                     {
-                        canMove.Add(new Vector2Int(x + 1, y + 1));
+                        _canMove.Add(new Vector2Int(x + 1, y + 1));
                     }
 
                     // check left middle
                     if (x - 1 >= 0 && _board[x, y].Type == _board[x - 1, y + 1].Type)
                     {
-                        canMove.Add(new Vector2Int(x - 1, y + 1));
+                        _canMove.Add(new Vector2Int(x - 1, y + 1));
                     }
                 }
             }
         }
 
-        Debug.Log(canMove.Count + " possible moves found");
+        Debug.Log(_canMove.Count + " possible moves found");
     }
 
     public Vector3 ToLocalPosition(Vector2Int arrayPos)
     {
-        float drawX = stepX * arrayPos.x - width / 2 + stepX / 2;
-        float drawY = stepY * arrayPos.y - height / 2 + stepY / 2;
+        float drawX = _stepX * arrayPos.x - _width / 2 + _stepX / 2;
+        float drawY = _stepY * arrayPos.y - _height / 2 + _stepY / 2;
         return new Vector2(drawX, drawY);
     }
 
-    public void removeNut(Vector2Int position, int offset = 0)
+    private void RemoveNut(Vector2Int position, int offset = 0)
     {
         float spawnX = ToLocalPosition(position).x;
         Destroy(_board[position.x, position.y].GObject);
@@ -364,11 +367,11 @@ public class Board : MonoBehaviour
             _board[position.x, i].Position = new Vector2Int(position.x, i);
         }
 
-        Peanut peanut = addNut(new Vector2Int(position.x, _board.GetLength(1) - 1));
-        drawNut(new Vector3(spawnX, spawnHeight + offset * stepY, 1), peanut);
+        Peanut peanut = AddNut(new Vector2Int(position.x, _board.GetLength(1) - 1));
+        DrawNut(new Vector3(spawnX, _spawnHeight + offset * _stepY, 1), peanut);
     }
 
-    private void drawNut(Vector3 position, Peanut nut)
+    private void DrawNut(Vector3 position, Peanut nut)
     {
         updateNut(position, nut.GObject, false);
     }
@@ -385,10 +388,10 @@ public class Board : MonoBehaviour
         }
     }
 
-    private void drawGrid(Vector3 position, Vector2 size)
+    private void DrawGrid(Vector3 position, Vector2 size)
     {
         GameObject go = new GameObject();
-        string imageToLoad = "Sprites/gridSquare";
+        const string imageToLoad = "Sprites/gridSquare";
         Sprite sprite = Resources.Load(imageToLoad, typeof(Sprite)) as Sprite;
         go.transform.position = position;
         go.transform.localScale = size;
@@ -401,24 +404,24 @@ public class Board : MonoBehaviour
         spriteRenderer.sprite = sprite;
     }
 
-    private void drawBoard()
+    private void DrawBoard()
     {
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
-                float drawX = stepX * x - width / 2 + stepX / 2;
-                float drawY = stepY * y - height / 2 + stepY / 2;
-                drawNut(new Vector3(drawX, drawY, 1), _board[x, y]);
+                float drawX = _stepX * x - _width / 2 + _stepX / 2;
+                float drawY = _stepY * y - _height / 2 + _stepY / 2;
+                DrawNut(new Vector3(drawX, drawY, 1), _board[x, y]);
                 if ((x + y) % 2 == 0)
                 {
-                    drawGrid(new Vector3(drawX, drawY, 1), new Vector2Int((int) stepX, (int) stepY));
+                    DrawGrid(new Vector3(drawX, drawY, 1), new Vector2Int((int) _stepX, (int) _stepY));
                 }
             }
         }
     }
 
-    private void updateBoard(bool animate = true)
+    private void UpdateBoard(bool animate = true)
     {
         for (int y = 0; y < _board.GetLength(1); y++)
         {
@@ -426,19 +429,19 @@ public class Board : MonoBehaviour
             {
                 if (_board[x, y])
                 {
-                    float drawX = stepX * x - width / 2 + stepX / 2;
-                    float drawY = stepY * y - height / 2 + stepY / 2;
+                    float drawX = _stepX * x - _width / 2 + _stepX / 2;
+                    float drawY = _stepY * y - _height / 2 + _stepY / 2;
                     if (_board[x, y].transform.localPosition != new Vector3(drawX, drawY, 1))
                     {
                         updateNut(new Vector3(drawX, drawY, 1), _board[x, y].GObject, animate);
-                        restartTimer();
+                        RestartTimer();
                     }
                 }
             }
         }
     }
 
-    private void loadImages()
+    private void LoadImages()
     {
         foreach (var image in _images)
         {
@@ -446,50 +449,50 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void restartTimer()
+    public void RestartTimer()
     {
-        restartTimer(checkMatchDelay);
+        RestartTimer(_checkMatchDelay);
     }
 
-    public void restartTimer(float delay)
+    public void RestartTimer(float delay)
     {
-        timeLeft = delay;
-        moving = true;
+        _timeLeft = delay;
+        _moving = true;
     }
 
-    private void init()
+    private void Init()
     {
-//set board gameobject as private variable
+        //set board gameobject as private variable
         _boardObject = GameObject.Find("Board");
-//set board info
-        rt = _boardObject.GetComponent<RectTransform>();
-        width = rt.rect.width;
-        height = rt.rect.height;
-        stepX = width / _board.GetLength(0);
-        stepY = height / _board.GetLength(1);
-        spawnHeight = (int) (height / 2 + stepY / 2);
-//load all peanut images
-        loadImages();
-//set score object
+        //set board info
+        _rt = _boardObject.GetComponent<RectTransform>();
+        _width = _rt.rect.width;
+        _height = _rt.rect.height;
+        _stepX = _width / _board.GetLength(0);
+        _stepY = _height / _board.GetLength(1);
+        _spawnHeight = (int) (_height / 2 + _stepY / 2);
+        //load all peanut images
+        LoadImages();
+        //set score object
         _score = GameObject.Find("ScoreBoard").GetComponent<GameScore>();
     }
 
     private void Start()
     {
-        init();
-        fillBoard();
-        drawBoard();
+        Init();
+        FillBoard();
+        DrawBoard();
         UpdatePossilbeMatches();
     }
 
     private void FixedUpdate()
     {
-        updateBoard();
-        timeLeft -= Time.deltaTime;
-        if (timeLeft < 0 && moving) //while there are still matches keep 
+        UpdateBoard();
+        _timeLeft -= Time.deltaTime;
+        if (_timeLeft < 0 && _moving) //while there are still matches keep 
         {
-            List<List<Vector2Int>> matches = getMatches();
-            List<Vector2Int> toRemove = new List<Vector2Int>();
+            var matches = GetMatches();
+            var toRemove = new List<Vector2Int>();
             if (matches.Count > 0)
             {
                 foreach (var match in matches)
@@ -505,33 +508,32 @@ public class Board : MonoBehaviour
                 toRemove.Sort(delegate(Vector2Int a, Vector2Int b) { return a.y.CompareTo(b.y); });
                 int spawnY = 0;
                 int lastY = toRemove[0].y;
-                for (var i = 0; i < toRemove.Count; i++)
+                foreach (var nut in toRemove)
                 {
-                    if (lastY != toRemove[i].y) spawnY++;
-                    var nut = toRemove[i];
-                    removeNut(nut, spawnY);
-                    restartTimer();
+                    if (lastY != nut.y) spawnY++;
+                    RemoveNut(nut, spawnY);
+                    RestartTimer();
                 }
 
-                restartTimer();
+                RestartTimer();
             }
         }
 
-        if (timeLeft < 0 && moving) //end of turn
+        if (_timeLeft < 0 && _moving) //end of turn
         {
-            moving = false;
+            _moving = false;
             Debug.Log("Done!");
             UpdatePossilbeMatches();
-            if (canMove.Count == 0)
+            if (_canMove.Count == 0)
             {
-                resetBoard();
+                ResetBoard();
             }
         }
     }
 
     public void SelectNut(Vector2Int position)
     {
-        if (moving)
+        if (_moving)
         {
             return;
         }
@@ -572,7 +574,7 @@ public class Board : MonoBehaviour
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
     {
-        if (canMove.Contains(pos1) || canMove.Contains(pos2))
+        if (_canMove.Contains(pos1) || _canMove.Contains(pos2))
         {
             Peanut peanut = _board[pos1.x, pos1.y];
             _board[pos1.x, pos1.y] = _board[pos2.x, pos2.y];
@@ -582,16 +584,18 @@ public class Board : MonoBehaviour
         }
         else
         {
-            Hashtable punchOptions = new Hashtable();
-            punchOptions.Add(
-                "amount",
-                (_board[pos2.x, pos2.y].GObject.transform.localPosition
-                 - _board[pos1.x, pos1.y].GObject.transform.localPosition));
-            punchOptions.Add("time", 1);
-            punchOptions.Add("EasyType", "easeOutQuad");
+            Hashtable punchOptions = new Hashtable
+            {
+                {
+                    "amount", _board[pos2.x, pos2.y].GObject.transform.localPosition
+                              - _board[pos1.x, pos1.y].GObject.transform.localPosition
+                },
+                {"time", 1},
+                {"EasyType", "easeOutQuad"}
+            };
             iTween.PunchPosition(_board[pos1.x, pos1.y].GObject, punchOptions);
-            punchOptions["amount"] = (_board[pos1.x, pos1.y].GObject.transform.localPosition
-                                      - _board[pos2.x, pos2.y].GObject.transform.localPosition);
+            punchOptions["amount"] = _board[pos1.x, pos1.y].GObject.transform.localPosition
+                                     - _board[pos2.x, pos2.y].GObject.transform.localPosition;
             iTween.PunchPosition(_board[pos2.x, pos2.y].GObject, punchOptions);
         }
     }
