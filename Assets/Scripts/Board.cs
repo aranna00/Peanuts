@@ -65,7 +65,7 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
-                RemoveNut(new Vector2Int(x, y), y);
+                RemoveNut(new Vector2Int(x, 0), y);
                 RestartTimer(1);
             }
         }
