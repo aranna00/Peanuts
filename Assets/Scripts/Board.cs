@@ -355,10 +355,10 @@ public class Board : MonoBehaviour
             }
         }
 
-        foreach (var peanut in _canMove)
-        {
-            _board[peanut.x,peanut.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.blue);
-        }
+//        foreach (var peanut in _canMove)
+//        {
+//            _board[peanut.x,peanut.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.blue);
+//        }
 
         Debug.Log(_canMove.Count + " possible moves found");
     }
