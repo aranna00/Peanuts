@@ -7,7 +7,7 @@ using Random = System.Random;
 public class Board : MonoBehaviour
 {
     // Board settings
-    [SerializeField] private float _checkMatchDelay = 0.3f;
+    [SerializeField] [Range(0,1)] private float _checkMatchDelay = 0.3f;
     
     // Board Game Objects
     private GameObject _boardObject;

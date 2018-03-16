@@ -28,7 +28,7 @@ public class GameScore : MonoBehaviour
         _scoreGameObject.GetComponent<Text>().text = _score.ToString();
     }
 
-    private void init()
+    private void Init()
     {
         _gameObject = GameObject.Find("ScoreBoard");
         _scoreGameObject = GameObject.Find("Score");
@@ -36,7 +36,7 @@ public class GameScore : MonoBehaviour
     
     private void Start()
     {
-        init();
+        Init();
         UpdateScore();
     }
 }
