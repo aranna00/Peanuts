@@ -4,6 +4,7 @@ using UnityEngine.XR.WSA;
 public class Peanut : MonoBehaviour
 {
     public static readonly string[] NutTypes = {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pine", "Pistachio", "Walnut"};
+//    public static readonly string[] NutTypes = {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut"};
 
     public string _type;
 
