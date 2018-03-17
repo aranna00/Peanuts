@@ -702,7 +702,7 @@ public class Board : MonoBehaviour
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
     {
-        if (CheckLose())
+        if (_moving || CheckLose())
         {
             return;
         }

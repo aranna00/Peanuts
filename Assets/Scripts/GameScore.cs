@@ -5,11 +5,13 @@ using UnityEngine.UI;
 
 public class GameScore : MonoBehaviour
 {
-    private int _score = 0;
-    private int _displayedScore = 0;
+    public float _score = 0;
+    private float _displayedScore = 0;
+    private float _lastScore = 0;
     private bool _updated = false;
-    [SerializeField] private int _incrementRate;
     [SerializeField] private int _fontSize;
+    private float _t;
+    float _timeToMove = 2f;
 
     public float Score
     {
@@ -25,13 +27,14 @@ public class GameScore : MonoBehaviour
         Debug.Log(multiplier);
         int points = match.Count - 3;
         int addedScore = (int)(100f * Math.Pow(2, points)*multiplier);
-        Debug.Log(addedScore);
         _score += addedScore;
+        _lastScore = _displayedScore;
+        _t = 0f;
     }
 
     private void UpdateScore()
     {
-        _scoreObject.text = _displayedScore.ToString();
+        _scoreObject.text = ((int)_displayedScore).ToString();
     }
 
     private void Init()
@@ -49,20 +52,14 @@ public class GameScore : MonoBehaviour
 
     private void FixedUpdate()
     {
+        _t += Time.deltaTime/_timeToMove;
+        
         if (_displayedScore != _score)
         {
-            if (_displayedScore < _score)
-            {
-                _displayedScore += _incrementRate;
-                _scoreObject.fontSize = _fontSize + 10;
-            }
-            else
-            {
-                _displayedScore -= _incrementRate;
-            }
+            _displayedScore = Mathf.Lerp(_displayedScore, _score, _t);
+            _scoreObject.fontSize = (int) (_fontSize + 10 + Math.Sin(Time.time*10) * 5);
         }
-
-        if (_scoreObject.fontSize > _fontSize)
+        else if (_scoreObject.fontSize > _fontSize)
         {
             _scoreObject.fontSize--;
         }

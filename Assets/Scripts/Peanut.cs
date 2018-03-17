@@ -53,6 +53,7 @@ public class Peanut : MonoBehaviour
     private void OnMouseDown()
     {
         _touchPosition = Input.mousePosition;
+        
     }
 
     private void OnMouseUp()
