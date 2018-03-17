@@ -1,9 +1,11 @@
-﻿using UnityEngine;
-using UnityEngine.XR.WSA;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Peanut : MonoBehaviour
 {
-    public static readonly string[] NutTypes = {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pine", "Pistachio", "Walnut"};
+    public List<string> NutTypes;
+//    public string[] NutTypes;
 
     // Peanut properties
     private string _type;
@@ -25,15 +27,27 @@ public class Peanut : MonoBehaviour
 
     public GameObject GObject { get; set; }
 
-    public void Setup()
+    private void Setup()
     {
-        Setup(Random.Range(0, NutTypes.Length));
+        _board = GameObject.Find("Board").GetComponent<Board>();
+        _type = NutTypes[Random.Range(0, NutTypes.Count)];
     }
     
-    public void Setup(int nutNumber)
+    public void Setup(string difficulty)
     {
-        _type = NutTypes[nutNumber];
-        _board = GameObject.Find("Board").GetComponent<Board>();
+        switch (difficulty)
+        {
+            case "easy":
+                NutTypes = new List<string> {"Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pistachio", "Walnut"};
+                break;
+            case "medium":
+                NutTypes = new List<string> {"Almond", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pistachio", "Walnut"};
+                break;
+            case "hard":
+                NutTypes = new List<string> {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pistachio", "Walnut"};
+                break;
+        }
+        Setup();
     }
 
     private void OnMouseDown()

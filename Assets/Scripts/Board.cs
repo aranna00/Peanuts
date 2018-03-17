@@ -79,7 +79,7 @@ public class Board : MonoBehaviour
         GameObject go = new GameObject();
         Peanut peanut = go.AddComponent<Peanut>();
 //        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
-        peanut.Setup();
+        peanut.Setup("easy");
         peanut.Position = pos;
         _board[pos.x, pos.y] = peanut;
 
@@ -409,7 +409,7 @@ public class Board : MonoBehaviour
         {
             foreach (var movable in pairs)
             {
-                _board[movable.x,movable.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.blue);
+//                _board[movable.x,movable.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.blue);
             }
         }
 
@@ -571,7 +571,7 @@ public class Board : MonoBehaviour
                     _score.Add(match);
                 }
 
-                toRemove.Sort(delegate(Vector2Int a, Vector2Int b) { return a.y.CompareTo(b.y); });
+                toRemove.Sort(delegate(Vector2Int a, Vector2Int b) { return b.y.CompareTo(a.y); });
                 int spawnY = 0;
                 int lastY = toRemove[0].y;
                 foreach (var nut in toRemove)
