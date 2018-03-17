@@ -594,7 +594,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void SelectNut(Vector2Int position)
+    public void SelectNut(Vector2Int position) // not used anymore
     {
         if (_moving)
         {
@@ -633,6 +633,15 @@ public class Board : MonoBehaviour
         }
 
         _selectedNut = new Vector2Int(-1, -1);
+    }
+    
+    public void Move(Vector2Int pos, Vector2Int direction)
+    {
+        if ((int) direction.magnitude == 1)
+        {
+            SwapNuts(pos, pos+direction);
+        }
+        
     }
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
