@@ -19,7 +19,7 @@ public class Board : MonoBehaviour
     
     // Board variables
     private readonly List<string> _images = new List<string>();
-    private List<Vector2Int> _canMove = new List<Vector2Int>();
+    private List<List<Vector2Int>> _canMove = new List<List<Vector2Int>>();
     private Vector2Int _selectedNut = new Vector2Int(-1, -1);
     private float _width, _height, _stepX, _stepY, _spawnHeight, _timeLeft;
     private bool _moving;
@@ -177,188 +177,238 @@ public class Board : MonoBehaviour
 
     private void UpdatePossilbeMatches()
     {
-        _canMove = new List<Vector2Int>();
+        foreach (var pairs in _canMove)
+        {
+            foreach (var movable in pairs)
+            {
+                _board[movable.x,movable.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.white);
+            }
+        }
+        _canMove = new List<List<Vector2Int>>();
 
-        // check horizontal
         // check horizontal
         for (int y = 0; y < _board.GetLength(1); y++)
         {
             for (int x = 0; x < _board.GetLength(0); x++)
             {
-                if (
-                    x + 2 < _board.GetLength(0)
-                    && x - 1 >= 0
-                )
+                if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y].Type)
                 {
-                    if (
-                        x + 2 < _board.GetLength(0)
-                        && _board[x, y].Type != _board[x + 1, y].Type
-                        && _board[x, y].Type == _board[x + 2, y].Type
-                    )
+                    if (x - 2 >= 0)
                     {
-                        // check above middle
-                        if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x + 1, y + 1].Type)
+                        // check 2 left
+                        if (_board[x, y].Type == _board[x - 2, y].Type)
                         {
-                            _canMove.Add(new Vector2Int(x + 1, y + 1));
-                            _canMove.Add(new Vector2Int(x + 1, y));
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x - 2, y));
+                            pair.Add(new Vector2Int(x - 1, y));
+                            _canMove.Add(pair);
                         }
+                    }
 
-                        // check below middle
-                        if (y - 1 > 0 && _board[x, y].Type == _board[x + 1, y - 1].Type)
+                    if (y + 1 < _board.GetLength(1) && x - 1 >= 0)
+                    {
+                        // check 1 left 1 above
+                        if (_board[x, y].Type == _board[x - 1, y + 1].Type)
                         {
-                            _canMove.Add(new Vector2Int(x + 1, y - 1));
-                            _canMove.Add(new Vector2Int(x + 1, y));
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x - 1, y + 1));
+                            pair.Add(new Vector2Int(x - 1, y));
+                            _canMove.Add(pair);
                         }
-
-                        continue;
                     }
 
-                    if (
-                        !(
-                            _board[x, y].Type == _board[x + 1, y].Type
-                          && _board[x, y].Type != _board[x + 2, y].Type
-                            )
-                    )
+                    if (y - 1 >= 0 && x - 1 >= 0)
                     {
-                        continue;
+                        // check 1 left 1 below
+                        if (_board[x, y].Type == _board[x - 1, y - 1].Type)
+                        {
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x - 1, y - 1));
+                            pair.Add(new Vector2Int(x - 1, y));
+                            _canMove.Add(pair);
+                        }
                     }
 
-                    // check 2 left
-                    if (x - 2 > 0 && _board[x, y].Type == _board[x - 2, y].Type)
+                    if (x + 3 < _board.GetLength(0))
                     {
-                        _canMove.Add(new Vector2Int(x - 2, y));
-                        _canMove.Add(new Vector2Int(x - 1, y));
+                        // check 2 right
+                        if (_board[x, y].Type == _board[x + 3, y].Type)
+                        {
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x + 3, y));
+                            pair.Add(new Vector2Int(x + 2, y));
+                            _canMove.Add(pair);
+                        }
                     }
 
-                    // check 1 left 1 above
-                    if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x - 1, y + 1].Type)
+                    if (y - 1 >= 0 && x + 2 < _board.GetLength(0))
                     {
-                        _canMove.Add(new Vector2Int(x - 1, y + 1));
-                        _canMove.Add(new Vector2Int(x - 1, y));
+                        // check 1 right 1 above
+                        if (_board[x, y].Type == _board[x + 2, y - 1].Type)
+                        {
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x + 2, y - 1));
+                            pair.Add(new Vector2Int(x + 2, y));
+                            _canMove.Add(pair);
+                        }
                     }
 
-                    // check 1 left 1 below
-                    if (y - 1 > 0 && _board[x, y].Type == _board[x - 1, y - 1].Type)
+                    if (y + 1 < _board.GetLength(1) && x + 2 < _board.GetLength(0))
                     {
-                        _canMove.Add(new Vector2Int(x - 1, y - 1));
-                        _canMove.Add(new Vector2Int(x - 1, y));
+                        // check 1 right 1 below
+                        if (_board[x, y].Type == _board[x + 2, y + 1].Type)
+                        {
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x + 2, y + 1));
+                            pair.Add(new Vector2Int(x + 2, y));
+                            _canMove.Add(pair);
+                        }
+                    }
+                }
+
+                if (x + 2 < _board.GetLength(0)
+                    && _board[x, y].Type != _board[x + 1, y].Type
+                    && _board[x, y].Type == _board[x + 2, y].Type)
+                {
+                    // check above middle
+                    if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x + 1, y + 1].Type)
+                    {
+                        List<Vector2Int> pair = new List<Vector2Int>();
+                        pair.Add(new Vector2Int(x + 1, y + 1));
+                        pair.Add(new Vector2Int(x + 1, y));
+                        _canMove.Add(pair);
                     }
 
-                    // check 2 right
-                    if (x + 3 < _board.GetLength(0) && _board[x, y].Type == _board[x + 3, y].Type)
+                    // check below middle
+                    if (y - 1 >= 0 && _board[x, y].Type == _board[x + 1, y - 1].Type)
                     {
-                        _canMove.Add(new Vector2Int(x + 3, y));
-                        _canMove.Add(new Vector2Int(x + 2, y));
-                    }
-
-                    // check 1 right 1 above
-                    if (y + 1 < _board.GetLength(1) && _board[x, y].Type == _board[x + 2, y + 1].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x + 2, y + 1));
-                        _canMove.Add(new Vector2Int(x + 2, y));
-                    }
-
-                    // check 1 right 1 below
-                    if (y - 1 > 0 && _board[x, y].Type == _board[x + 2, y - 1].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x + 2, y - 1));
-                        _canMove.Add(new Vector2Int(x + 2, y));
+                        List<Vector2Int> pair = new List<Vector2Int>();
+                        pair.Add(new Vector2Int(x + 1, y - 1));
+                        pair.Add(new Vector2Int(x + 1, y));
+                        _canMove.Add(pair);
                     }
                 }
             }
         }
 
+        // check vertical
         for (int x = 0; x < _board.GetLength(0); x++)
         {
             for (int y = 0; y < _board.GetLength(1); y++)
             {
-                if (
-                    y + 2 < _board.GetLength(1)
-                    && y - 1 >= 0
-                )
+                if (y + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x, y + 1].Type)
                 {
-                    if (
-                        y + 2 < _board.GetLength(0)
-                        && _board[x, y].Type != _board[x, y + 1].Type
-                        && _board[x, y].Type == _board[x, y + 2].Type
-                    )
+                    if (y - 2 >= 0)
                     {
-                        // check right middle
-                        if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 1].Type)
+                        // check 2 below
+                        if (_board[x, y].Type == _board[x, y - 2].Type)
                         {
-                            _canMove.Add(new Vector2Int(x + 1, y + 1));
-                            _canMove.Add(new Vector2Int(x, y + 1));
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x, y - 2));
+                            pair.Add(new Vector2Int(x, y - 1));
+                            _canMove.Add(pair);
+                        }
+                    }
+
+                    if (y - 1 >= 0)
+                    {
+                        if (x - 1 >= 0)
+                        {
+                            // check 1 below 1 left
+                            if (_board[x, y].Type == _board[x - 1, y - 1].Type)
+                            {
+                                List<Vector2Int> pair = new List<Vector2Int>();
+                                pair.Add(new Vector2Int(x - 1, y - 1));
+                                pair.Add(new Vector2Int(x, y - 1));
+                                _canMove.Add(pair);
+                            }
                         }
 
-                        // check left middle
-                        if (x - 1 > 0 && _board[x, y].Type == _board[x - 1, y + 1].Type)
+                        if (x + 1 < _board.GetLength(0))
                         {
-                            _canMove.Add(new Vector2Int(x - 1, y + 1));
-                            _canMove.Add(new Vector2Int(x, y + 1));
+                            // check 1 below 1 right
+                            if (_board[x, y].Type == _board[x + 1, y - 1].Type)
+                            {
+                                List<Vector2Int> pair = new List<Vector2Int>();
+                                pair.Add(new Vector2Int(x + 1, y - 1));
+                                pair.Add(new Vector2Int(x, y - 1));
+                                _canMove.Add(pair);
+                            }
+                        }
+                    }
+
+                    if (y + 3 < _board.GetLength(1))
+                    {
+                        // check 2 above
+                        if (_board[x, y].Type == _board[x, y + 3].Type)
+                        {
+                            List<Vector2Int> pair = new List<Vector2Int>();
+                            pair.Add(new Vector2Int(x, y + 3));
+                            pair.Add(new Vector2Int(x, y + 2));
+                            _canMove.Add(pair);
+                        }
+                    }
+
+                    if (y + 2 < _board.GetLength(1))
+                    {
+                        if (x - 1 >= 0)
+                        {
+                            // check 1 above 1 left
+                            if (_board[x, y].Type == _board[x - 1, y + 2].Type)
+                            {
+                                List<Vector2Int> pair = new List<Vector2Int>();
+                                pair.Add(new Vector2Int(x - 1, y + 2));
+                                pair.Add(new Vector2Int(x, y + 2));
+                                _canMove.Add(pair);
+                            }
                         }
 
-                        continue;
+                        if (x + 1 < _board.GetLength(0))
+                        {
+                            // check 1 above 1 right
+                            if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 2].Type)
+                            {
+                                List<Vector2Int> pair = new List<Vector2Int>();
+                                pair.Add(new Vector2Int(x + 1, y + 2));
+                                pair.Add(new Vector2Int(x, y + 2));
+                                _canMove.Add(pair);
+                            }
+                        }
+                    }
+                }
+
+                if (y + 2 < _board.GetLength(0)
+                    && _board[x, y].Type != _board[x, y + 1].Type
+                    && _board[x, y].Type == _board[x, y + 2].Type)
+                {
+                    // check right middle
+                    if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 1].Type)
+                    {
+                        List<Vector2Int> pair = new List<Vector2Int>();
+                        pair.Add(new Vector2Int(x + 1, y + 1));
+                        pair.Add(new Vector2Int(x, y + 1));
+                        _canMove.Add(pair);
                     }
 
-                    if (
-                        !(
-                            _board[x, y].Type == _board[x, y + 1].Type
-                          && _board[x, y].Type != _board[x, y + 2].Type
-                            )
-                    )
+                    // check left middle
+                    if (x - 1 >= 0 && _board[x, y].Type == _board[x - 1, y + 1].Type)
                     {
-                        continue;
-                    }
-
-                    // check 2 below
-                    if (y - 2 > 0 && _board[x, y].Type == _board[x, y - 2].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x, y - 2));
-                        _canMove.Add(new Vector2Int(x, y - 1));
-                    }
-
-                    // check 1 below 1 left
-                    if (x - 1 > 0 && _board[x, y].Type == _board[x - 1, y - 1].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x - 1, y - 1));
-                        _canMove.Add(new Vector2Int(x, y - 1));
-                    }
-
-                    // check 1 below 1 right
-                    if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y - 1].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x + 1, y - 1));
-                        _canMove.Add(new Vector2Int(x, y - 1));
-                    }
-
-                    // check 2 above
-                    if (y + 3 < _board.GetLength(1) && _board[x, y].Type == _board[x, y + 3].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x, y + 3));
-                        _canMove.Add(new Vector2Int(x, y + 2));
-                    }
-
-                    // check 1 above 1 left
-                    if (x - 1 > 0 && _board[x, y].Type == _board[x - 1, y + 2].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x - 1, y + 2));
-                        _canMove.Add(new Vector2Int(x, y + 2));
-                    }
-
-                    // check 1 above 1 right
-                    if (x + 1 < _board.GetLength(0) && _board[x, y].Type == _board[x + 1, y + 2].Type)
-                    {
-                        _canMove.Add(new Vector2Int(x + 1, y + 2));
-                        _canMove.Add(new Vector2Int(x, y + 2));
+                        List<Vector2Int> pair = new List<Vector2Int>();
+                        pair.Add(new Vector2Int(x - 1, y + 1));
+                        pair.Add(new Vector2Int(x, y + 1));
+                        _canMove.Add(pair);
                     }
                 }
             }
         }
 
-//        foreach (var peanut in _canMove)
-//        {
-//            _board[peanut.x,peanut.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.blue);
-//        }
+        foreach (var pairs in _canMove)
+        {
+            foreach (var movable in pairs)
+            {
+                _board[movable.x,movable.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.blue);
+            }
+        }
 
         Debug.Log(_canMove.Count + " possible moves found");
     }
@@ -587,7 +637,16 @@ public class Board : MonoBehaviour
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
     {
-        if (_canMove.Contains(pos1) && _canMove.Contains(pos2))
+        bool canMove = false;
+        foreach (var pair in _canMove)
+        {
+            if (pair.Contains(pos1) && pair.Contains(pos2))
+            {
+                canMove = true;
+            }
+        }
+        
+        if (canMove)
         {
             Peanut peanut = _board[pos1.x, pos1.y];
             _board[pos1.x, pos1.y] = _board[pos2.x, pos2.y];
