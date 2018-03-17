@@ -53,7 +53,7 @@ public class Peanut : MonoBehaviour
     private void OnMouseDown()
     {
         _touchPosition = Input.mousePosition;
-        
+        GObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.7f);
     }
 
     private void OnMouseUp()
@@ -77,5 +77,6 @@ public class Peanut : MonoBehaviour
         {
             _board.SelectNut(Position);
         }
+        GObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 1f);
     }
 }

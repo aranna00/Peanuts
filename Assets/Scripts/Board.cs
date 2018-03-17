@@ -13,6 +13,7 @@ public class Board : MonoBehaviour
     private GameObject _boardObject;
     private GameScore _score;
     private RectTransform _rt;
+    public ParticleSystem DestroyParticle;
     
     // Board Content
     private readonly Peanut[,] _board = new Peanut[8, 8];
@@ -423,8 +424,13 @@ public class Board : MonoBehaviour
         return new Vector2(drawX, drawY);
     }
 
-    private void RemoveNut(Vector2Int position, int offset = 0)
+    private void RemoveNut(Vector2Int position, int offset = 0, bool particles = false)
     {
+        if (particles)
+        {
+            var particle = Instantiate(DestroyParticle,_board[position.x,position.y].transform.position, new Quaternion());
+            Destroy(particle.gameObject, particle.duration);
+        }
         float spawnX = ToLocalPosition(position).x;
         Destroy(_board[position.x, position.y].GObject);
         for (int i = position.y; i < _board.GetLength(1) - 1; i++)
@@ -577,7 +583,7 @@ public class Board : MonoBehaviour
                 foreach (var nut in toRemove)
                 {
                     if (lastY != nut.y) spawnY++;
-                    RemoveNut(nut, spawnY);
+                    RemoveNut(nut, spawnY, true);
                     RestartTimer();
                 }
 
@@ -618,14 +624,14 @@ public class Board : MonoBehaviour
         if (_selectedNut == new Vector2Int(-1, -1))
         {
             _selectedNut = position;
-            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.7f);
             return;
         }
 
         if (_selectedNut == position)
         {
             _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color =
-                new Color(255, 255, 255);
+                new Color(255, 255, 255, 1);
             _selectedNut = new Vector2Int(-1, -1);
             return;
         }
@@ -634,16 +640,16 @@ public class Board : MonoBehaviour
             || _selectedNut.y == position.y && (_selectedNut.x == position.x - 1 || _selectedNut.x == position.x + 1))
         {
             _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color =
-                new Color(255, 255, 255);
+                new Color(255, 255, 255, 1);
             SwapNuts(_selectedNut, position);
             _selectedNut = new Vector2Int(-1, -1);
         }
         else
         {
             _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color =
-                new Color(255, 255, 255);
+                new Color(255, 255, 255, 1);
             _selectedNut = position;
-            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.7f);
             return;
         }
 
@@ -661,7 +667,7 @@ public class Board : MonoBehaviour
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
     {
-        if (_moving || CheckLose())
+        if (CheckLose() || _moving)
         {
             return;
         }
