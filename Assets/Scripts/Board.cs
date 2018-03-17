@@ -23,6 +23,9 @@ public class Board : MonoBehaviour
     private Vector2Int _selectedNut = new Vector2Int(-1, -1);
     private float _width, _height, _stepX, _stepY, _spawnHeight, _timeLeft;
     private bool _moving;
+    public string Gamemode;
+    private int _moves = 0;
+    private int _maxMoves = 25;
     
     // Debug Variables
     Random _random = new Random(15);
@@ -587,6 +590,14 @@ public class Board : MonoBehaviour
             _moving = false;
             Debug.Log("Done!");
             UpdatePossilbeMatches();
+            if (CheckLose())
+            {
+                Debug.Log("You have lost!");
+            }
+            if (CheckWin())
+            {
+                Debug.Log("You have won!");
+            }
             if (_canMove.Count == 0)
             {
                 ResetBoard();
@@ -594,8 +605,12 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void SelectNut(Vector2Int position) // not used anymore
+    public void SelectNut(Vector2Int position) // used in non-mobile enviroments
     {
+        if (CheckLose())
+        {
+            return;
+        }
         if (_moving)
         {
             return;
@@ -646,6 +661,10 @@ public class Board : MonoBehaviour
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
     {
+        if (CheckLose())
+        {
+            return;
+        }
         bool canMove = false;
         foreach (var pair in _canMove)
         {
@@ -662,6 +681,7 @@ public class Board : MonoBehaviour
             _board[pos1.x, pos1.y].Position = pos1;
             _board[pos2.x, pos2.y] = peanut;
             peanut.Position = pos2;
+            _moves++;
         }
         else
         {
@@ -679,5 +699,45 @@ public class Board : MonoBehaviour
                                      - _board[pos2.x, pos2.y].GObject.transform.localPosition;
             iTween.PunchPosition(_board[pos2.x, pos2.y].GObject, punchOptions);
         }
+        _selectedNut = new Vector2Int(-1, -1);
+    }
+
+    private bool CheckWin()
+    {
+        switch (Gamemode)
+        {
+            case "moves":
+                return false;
+            case "time":
+                return false;
+            case "score":
+                goto default;
+            default:
+                return CheckScoreWin();
+        }
+    }
+    private bool CheckLose()
+    {
+        switch (Gamemode)
+        {
+            case "moves":
+                return false;
+            case "time":
+                return false;
+            case "score":
+                goto default;
+            default:
+                return CheckScoreLose();
+        }
+    }
+
+    private bool CheckScoreWin()
+    {
+        return _score.GetComponent<GameScore>().Score > 20000;
+    }
+
+    private bool CheckScoreLose()
+    {
+        return _moves > _maxMoves;
     }
 }

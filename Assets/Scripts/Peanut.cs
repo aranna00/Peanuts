@@ -58,5 +58,9 @@ public class Peanut : MonoBehaviour
             _board.Move(Position,_swipeDirection);
             _swipeDirection = Vector2Int.zero;
         }
+        else if(Application.platform != RuntimePlatform.Android || Application.platform != RuntimePlatform.IPhonePlayer)
+        {
+            _board.SelectNut(Position);
+        }
     }
 }
