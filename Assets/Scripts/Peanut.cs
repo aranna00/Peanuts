@@ -38,10 +38,10 @@ public class Peanut : MonoBehaviour
         switch (difficulty)
         {
             case "easy":
-                NutTypes = new List<string> {"Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pistachio", "Walnut"};
+                NutTypes = new List<string> {"Coconut", "Hazelnut", "Peanut", "Pistachio", "Walnut"};
                 break;
             case "medium":
-                NutTypes = new List<string> {"Almond", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pistachio", "Walnut"};
+                NutTypes = new List<string> {"Almond", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pistachio", "Walnut"};
                 break;
             case "hard":
                 NutTypes = new List<string> {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pistachio", "Walnut"};

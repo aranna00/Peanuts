@@ -20,10 +20,13 @@ public class GameScore : MonoBehaviour
     private GameObject _gameObject;
     private Text _scoreObject;
 
-    public void Add(List<Vector2Int> match) // 3: 100 4: 200 5: 400
+    public void Add(List<Vector2Int> match,float multiplier) // 3: 100 4: 200 5: 400
     {
+        Debug.Log(multiplier);
         int points = match.Count - 3;
-        _score += 100 * (int) Math.Pow(2, points);
+        int addedScore = (int)(100f * Math.Pow(2, points)*multiplier);
+        Debug.Log(addedScore);
+        _score += addedScore;
     }
 
     private void UpdateScore()
@@ -64,5 +67,10 @@ public class GameScore : MonoBehaviour
             _scoreObject.fontSize--;
         }
         UpdateScore();
+    }
+
+    public void AddEnd()
+    {
+        _score += 400;
     }
 }

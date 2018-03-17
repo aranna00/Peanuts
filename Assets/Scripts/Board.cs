@@ -1,4 +1,4 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,26 +7,30 @@ using Random = System.Random;
 public class Board : MonoBehaviour
 {
     // Board settings
-    [SerializeField] [Range(0,1)] private float _checkMatchDelay = 0.3f;
-    
+    [SerializeField] [Range(0, 1)] private float _checkMatchDelay = 0.3f;
+
     // Board Game Objects
     private GameObject _boardObject;
     private GameScore _score;
     private RectTransform _rt;
-    
+
     // Board Content
     private readonly Peanut[,] _board = new Peanut[8, 8];
-    
+
     // Board variables
     private readonly List<string> _images = new List<string>();
     private List<List<Vector2Int>> _canMove = new List<List<Vector2Int>>();
     private Vector2Int _selectedNut = new Vector2Int(-1, -1);
     private float _width, _height, _stepX, _stepY, _spawnHeight, _timeLeft;
-    private bool _moving;
+    private bool _moving, gameEnded;
     public string Gamemode;
     private int _moves = 0;
     private int _maxMoves = 25;
-    
+    private float _multiplier = 1;
+    private int _targetScoreEasy = 10000;
+    private int _targetScoreMedium = 15000;
+    private int _targetScoreHard = 20000;
+
     // Debug Variables
     Random _random = new Random(15);
 
@@ -51,6 +55,7 @@ public class Board : MonoBehaviour
                     RemoveNut(nut);
                 }
             }
+
             matches = GetMatches();
         }
 
@@ -184,9 +189,10 @@ public class Board : MonoBehaviour
         {
             foreach (var movable in pairs)
             {
-                _board[movable.x,movable.y].GObject.GetComponent<Renderer>().material.SetColor("_Color",Color.white);
+                _board[movable.x, movable.y].GObject.GetComponent<Renderer>().material.SetColor("_Color", Color.white);
             }
         }
+
         _canMove = new List<List<Vector2Int>>();
 
         // check horizontal
@@ -568,10 +574,12 @@ public class Board : MonoBehaviour
                         toRemove.Add(nut);
                     }
 
-                    _score.Add(match);
+                    _score.Add(match, _multiplier);
+
+                    _multiplier += 0.5f;
                 }
 
-                toRemove.Sort(delegate(Vector2Int a, Vector2Int b) { return b.y.CompareTo(a.y); });
+                toRemove.Sort((a, b) => b.y.CompareTo(a.y));
                 int spawnY = 0;
                 int lastY = toRemove[0].y;
                 foreach (var nut in toRemove)
@@ -594,10 +602,38 @@ public class Board : MonoBehaviour
             {
                 Debug.Log("You have lost!");
             }
+
+            _multiplier = 1;
             if (CheckWin())
             {
-                Debug.Log("You have won!");
+                if (_moves < _maxMoves)
+                {
+                    _score.GetComponent<GameScore>().AddEnd();
+                    int row = _random.Next(8);
+                    bool rowOrColumn = _random.Next(2) == 1;
+                    for (int i = 0; i < _board.GetLength(0); i++)
+                    {
+                        if (rowOrColumn)
+                        {
+                            RemoveNut(new Vector2Int(i, row));
+                        }
+                        else
+                        {
+                            RemoveNut(new Vector2Int(row, i));
+                        }
+                    }
+
+                    _moves++;
+
+                    RestartTimer();
+                }
+                else
+                {
+                    gameEnded = true;
+                }
+                
             }
+
             if (_canMove.Count == 0)
             {
                 ResetBoard();
@@ -611,10 +647,16 @@ public class Board : MonoBehaviour
         {
             return;
         }
+        if (CheckWin())
+        {
+            return;
+        }
+
         if (_moving)
         {
             return;
         }
+
         if (_selectedNut == new Vector2Int(-1, -1))
         {
             _selectedNut = position;
@@ -649,14 +691,13 @@ public class Board : MonoBehaviour
 
         _selectedNut = new Vector2Int(-1, -1);
     }
-    
+
     public void Move(Vector2Int pos, Vector2Int direction)
     {
         if ((int) direction.magnitude == 1)
         {
-            SwapNuts(pos, pos+direction);
+            SwapNuts(pos, pos + direction);
         }
-        
     }
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
@@ -665,6 +706,11 @@ public class Board : MonoBehaviour
         {
             return;
         }
+        if (CheckWin())
+        {
+            return;
+        }
+
         bool canMove = false;
         foreach (var pair in _canMove)
         {
@@ -673,7 +719,7 @@ public class Board : MonoBehaviour
                 canMove = true;
             }
         }
-        
+
         if (canMove)
         {
             Peanut peanut = _board[pos1.x, pos1.y];
@@ -699,7 +745,9 @@ public class Board : MonoBehaviour
                                      - _board[pos2.x, pos2.y].GObject.transform.localPosition;
             iTween.PunchPosition(_board[pos2.x, pos2.y].GObject, punchOptions);
         }
+
         _selectedNut = new Vector2Int(-1, -1);
+        Debug.Log(_maxMoves - _moves + " moves left");
     }
 
     private bool CheckWin()
@@ -716,6 +764,7 @@ public class Board : MonoBehaviour
                 return CheckScoreWin();
         }
     }
+
     private bool CheckLose()
     {
         switch (Gamemode)
@@ -733,7 +782,7 @@ public class Board : MonoBehaviour
 
     private bool CheckScoreWin()
     {
-        return _score.GetComponent<GameScore>().Score > 20000;
+        return _score.GetComponent<GameScore>().Score > _targetScoreEasy;
     }
 
     private bool CheckScoreLose()
