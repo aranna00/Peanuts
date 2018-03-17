@@ -646,6 +646,7 @@ public class Board : MonoBehaviour
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
     {
+        if(_moving) return;
         bool canMove = false;
         foreach (var pair in _canMove)
         {
