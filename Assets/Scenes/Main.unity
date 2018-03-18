@@ -1996,7 +1996,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7667540956975e14881bbbd2dd30b48b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DifficultySetting: {fileID: 0}
 --- !u!114 &1030357552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3002,7 +3001,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 243730462617496428, guid: 28f1587867fef364a964233183268dcd,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: 97faec610225c594498a140baccb6643, type: 3}
+  m_audioClip: {fileID: 8300000, guid: cc547c457b79c6148bd55e6657a4305e, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.1
   m_Pitch: 1
