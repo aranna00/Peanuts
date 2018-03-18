@@ -14,6 +14,8 @@ public class Board : MonoBehaviour
     // Board Game Objects
     private GameObject _boardObject;
     private GameScore _score;
+    [SerializeField] private GameObject _winScreen;
+    [SerializeField] private GameObject _lostScreen;
     private RectTransform _rt;
 
     public ParticleSystem DestroyParticle;
@@ -564,6 +566,7 @@ public class Board : MonoBehaviour
         //set score object
         _score = GameObject.Find("ScoreBoard").GetComponent<GameScore>();
         _score.SetTargetScore(_targetScore);
+        _score.SetRemainingMoves(_maxMoves-_moves);
         audio = gameObject.GetComponent<AudioSource>();
         _difficulty = PlayerPrefs.GetString("difficulty");
     }
@@ -631,10 +634,6 @@ public class Board : MonoBehaviour
             _moving = false;
             Debug.Log("Done!");
             UpdatePossilbeMatches();
-            if (CheckLose())
-            {
-                Debug.Log("You have lost!");
-            }
 
             _multiplier = 1;
             if (CheckWin())
@@ -667,7 +666,14 @@ public class Board : MonoBehaviour
                 else
                 {
                     gameEnded = true;
+                    _winScreen.gameObject.SetActive(true);
                 }
+            }
+            
+            if (CheckLose() && !gameEnded)
+            {
+                Debug.Log("You have lost!");
+                _lostScreen.gameObject.SetActive(true);
             }
 
             if (_canMove.Count == 0)
@@ -733,6 +739,21 @@ public class Board : MonoBehaviour
 
     public void Move(Vector2Int pos, Vector2Int direction)
     {
+        if (CheckLose())
+        {
+            return;
+        }
+
+        if (CheckWin())
+        {
+            return;
+        }
+
+        if (_moving)
+        {
+            return;
+        }
+        
         Vector2Int newPos = pos + direction;
         if ((int) direction.magnitude == 1 &&
             newPos.x >= 0 && newPos.x < _board.GetLength(0) &&
