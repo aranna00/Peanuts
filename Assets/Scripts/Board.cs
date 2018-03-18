@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditorInternal;
 using UnityEngine;
 using Random = System.Random;
 
@@ -849,7 +848,7 @@ public class Board : MonoBehaviour
 
     private bool CheckScoreWin()
     {
-        return _score.GetComponent<GameScore>().Score > _targetScore;
+        return _score.GetComponent<GameScore>().Score >= _targetScore;
     }
 
     private bool CheckScoreLose()
