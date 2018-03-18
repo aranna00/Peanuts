@@ -19,7 +19,7 @@ public class Board : MonoBehaviour
 
     // Board Content
     private readonly Peanut[,] _board = new Peanut[8, 8];
-
+    
     // Board variables
     private readonly List<string> _images = new List<string>();
     private List<List<Vector2Int>> _canMove = new List<List<Vector2Int>>();
