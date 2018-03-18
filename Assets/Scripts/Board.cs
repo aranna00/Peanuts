@@ -566,7 +566,7 @@ public class Board : MonoBehaviour
         //set score object
         _score = GameObject.Find("ScoreBoard").GetComponent<GameScore>();
         _score.SetTargetScore(_targetScore);
-        _score.SetRemainingMoves(_maxMoves-_moves);
+        _score.SetRemainingMoves(_maxMoves - _moves);
         audio = gameObject.GetComponent<AudioSource>();
         _difficulty = PlayerPrefs.GetString("difficulty");
     }
@@ -643,7 +643,7 @@ public class Board : MonoBehaviour
                     _score.GetComponent<GameScore>().AddEnd();
                     int row = _random.Next(8);
                     bool rowOrColumn = _random.Next(2) == 1;
-                    for (int i = _board.GetLength(0) - 1; i >= 0; i--)
+                    for (int i = 0; i < _board.GetLength(0); i++)
                     {
                         if (rowOrColumn)
                         {
@@ -651,7 +651,7 @@ public class Board : MonoBehaviour
                         }
                         else
                         {
-                            RemoveNut(new Vector2Int(row, i));
+                            RemoveNut(new Vector2Int(row, 0));
                         }
                     }
 
@@ -669,7 +669,7 @@ public class Board : MonoBehaviour
                     _winScreen.gameObject.SetActive(true);
                 }
             }
-            
+
             if (CheckLose() && !gameEnded)
             {
                 Debug.Log("You have lost!");
@@ -753,7 +753,7 @@ public class Board : MonoBehaviour
         {
             return;
         }
-        
+
         Vector2Int newPos = pos + direction;
         if ((int) direction.magnitude == 1 &&
             newPos.x >= 0 && newPos.x < _board.GetLength(0) &&
@@ -847,6 +847,6 @@ public class Board : MonoBehaviour
 
     private bool CheckScoreLose()
     {
-        return _moves >= _maxMoves;
+        return _moves >= _maxMoves && _score.GetComponent<GameScore>().Score < _targetScore;
     }
 }
