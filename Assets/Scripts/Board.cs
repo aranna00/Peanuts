@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = System.Random;
 
 public class Board : MonoBehaviour
@@ -13,7 +14,9 @@ public class Board : MonoBehaviour
     private GameObject _boardObject;
     private GameScore _score;
     private RectTransform _rt;
+
     public ParticleSystem DestroyParticle;
+
     // Board Content
     private readonly Peanut[,] _board = new Peanut[8, 8];
 
@@ -96,7 +99,7 @@ public class Board : MonoBehaviour
 
         SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
         spriteRenderer.sortingOrder = 0;
-        spriteRenderer.sortingLayerName = "Game";
+        spriteRenderer.sortingLayerName = "Grid";
         spriteRenderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
         spriteRenderer.sprite = sprite;
         peanut.GObject = go;
@@ -429,13 +432,20 @@ public class Board : MonoBehaviour
         return new Vector2(drawX, drawY);
     }
 
+    public Vector3 GetNutWorldPosition(Vector2Int arrayPos)
+    {
+        return _board[arrayPos.x, arrayPos.y].transform.position;
+    }
+
     private void RemoveNut(Vector2Int position, int offset = 0, bool particles = false)
     {
         if (particles)
         {
-            var particle = Instantiate(DestroyParticle,_board[position.x,position.y].transform.position, new Quaternion());
+            var particle = Instantiate(DestroyParticle, _board[position.x, position.y].transform.position,
+                new Quaternion());
             Destroy(particle.gameObject, particle.duration);
         }
+
         float spawnX = ToLocalPosition(position).x;
         Destroy(_board[position.x, position.y].GObject);
         for (int i = position.y; i < _board.GetLength(1) - 1; i++)
@@ -590,6 +600,7 @@ public class Board : MonoBehaviour
                 foreach (var nut in toRemove)
                 {
                     if (lastY != nut.y) spawnY++;
+                    lastY = nut.y;
                     RemoveNut(nut, spawnY, true);
                     RestartTimer();
                 }
@@ -636,7 +647,6 @@ public class Board : MonoBehaviour
                 {
                     gameEnded = true;
                 }
-                
             }
 
             if (_canMove.Count == 0)
@@ -652,6 +662,7 @@ public class Board : MonoBehaviour
         {
             return;
         }
+
         if (CheckWin())
         {
             return;
@@ -665,7 +676,8 @@ public class Board : MonoBehaviour
         if (_selectedNut == new Vector2Int(-1, -1))
         {
             _selectedNut = position;
-            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.7f);
+            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color =
+                new Color(255, 255, 255, 0.7f);
             return;
         }
 
@@ -690,7 +702,8 @@ public class Board : MonoBehaviour
             _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color =
                 new Color(255, 255, 255, 1);
             _selectedNut = position;
-            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0.7f);
+            _board[_selectedNut.x, _selectedNut.y].GObject.GetComponent<SpriteRenderer>().color =
+                new Color(255, 255, 255, 0.7f);
             return;
         }
 
@@ -699,9 +712,12 @@ public class Board : MonoBehaviour
 
     public void Move(Vector2Int pos, Vector2Int direction)
     {
-        if ((int) direction.magnitude == 1)
+        Vector2Int newPos = pos + direction;
+        if ((int) direction.magnitude == 1 && 
+            newPos.x >= 0 && newPos.x < _board.GetLength(0) && 
+            newPos.y >= 0 && newPos.y < _board.GetLength(1))
         {
-            SwapNuts(pos, pos + direction);
+            SwapNuts(pos, newPos);
         }
     }
 
@@ -711,6 +727,7 @@ public class Board : MonoBehaviour
         {
             return;
         }
+
         if (CheckWin())
         {
             return;

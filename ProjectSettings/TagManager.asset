@@ -44,13 +44,13 @@ TagManager:
   - name: Background
     uniqueID: 2872749999
     locked: 0
-  - name: Interface
+  - name: Board
     uniqueID: 562993537
     locked: 0
   - name: Grid
     uniqueID: 3430140047
     locked: 0
-  - name: Game
+  - name: Score
     uniqueID: 224106983
     locked: 0
   - name: Overlay
