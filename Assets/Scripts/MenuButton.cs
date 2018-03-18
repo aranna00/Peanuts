@@ -10,7 +10,7 @@ public class MenuButton : MonoBehaviour {
 		audio.clip = clip;
 	}
 	
-	// Update is called once per frame
+	// Update is called once pe,.....r frame
 	void Update ()
 	{
 

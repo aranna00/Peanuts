@@ -13,6 +13,7 @@ public class GameScore : MonoBehaviour
     [SerializeField] private int _fontSize;
     private float _t;
     float _timeToMove = 2f;
+    private AudioSource audio;
 
     public float Score
     {
@@ -27,7 +28,17 @@ public class GameScore : MonoBehaviour
 
     public void Add(List<Vector2Int> match, float multiplier) // 3: 100 4: 200 5: 400
     {
-        Debug.Log(multiplier);
+        AudioClip clip;
+        if (match.Count > 4)
+        {
+            clip = Resources.Load<AudioClip>("Sounds/match-1");
+        }
+        else
+        {
+            clip = Resources.Load<AudioClip>("Sounds/match-0");
+        }
+        audio.clip = clip;
+        audio.Play();
         int points = match.Count - 3;
         int addedScore = (int) (100f * Math.Pow(2, points) * multiplier);
         _score += addedScore;
@@ -62,6 +73,7 @@ public class GameScore : MonoBehaviour
         _scoreGameObject = GameObject.Find("Score");
         _board = GameObject.Find("Board").GetComponent<Board>();
         _scoreObject = _scoreGameObject.GetComponent<Text>();
+        audio = gameObject.AddComponent<AudioSource>();
     }
 
     private void Start()

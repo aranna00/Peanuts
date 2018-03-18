@@ -33,6 +33,7 @@ public class Board : MonoBehaviour
     private int _targetScoreEasy = 10000;
     private int _targetScoreMedium = 15000;
     private int _targetScoreHard = 20000;
+    private AudioSource audio;
 
     // Debug Variables
     Random _random = new Random(15);
@@ -562,6 +563,7 @@ public class Board : MonoBehaviour
         LoadImages();
         //set score object
         _score = GameObject.Find("ScoreBoard").GetComponent<GameScore>();
+        audio = gameObject.AddComponent<AudioSource>();
     }
 
     private void Start()
@@ -638,6 +640,9 @@ public class Board : MonoBehaviour
                             RemoveNut(new Vector2Int(row, i));
                         }
                     }
+                    AudioClip clip = Resources.Load<AudioClip>("Sounds/match-1");
+                    audio.clip = clip;
+                    audio.Play();
 
                     _moves++;
 
@@ -723,12 +728,7 @@ public class Board : MonoBehaviour
 
     private void SwapNuts(Vector2Int pos1, Vector2Int pos2)
     {
-        if (CheckLose() || _moving)
-        {
-            return;
-        }
-
-        if (CheckWin())
+        if (CheckLose() || _moving || CheckWin())
         {
             return;
         }
@@ -809,6 +809,6 @@ public class Board : MonoBehaviour
 
     private bool CheckScoreLose()
     {
-        return _moves > _maxMoves;
+        return _moves >= _maxMoves;
     }
 }
