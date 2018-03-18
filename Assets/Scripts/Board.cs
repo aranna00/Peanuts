@@ -1,6 +1,7 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditorInternal;
 using UnityEngine;
 using Random = System.Random;
 
@@ -20,7 +21,7 @@ public class Board : MonoBehaviour
 
     // Board Content
     private readonly Peanut[,] _board = new Peanut[8, 8];
-    
+
     // Board variables
     private readonly List<string> _images = new List<string>();
     private List<List<Vector2Int>> _canMove = new List<List<Vector2Int>>();
@@ -34,6 +35,7 @@ public class Board : MonoBehaviour
     private int _targetScore = 10000;
     private int _highscore;
     private AudioSource audio;
+    private string _difficulty = "Easy";
 
     // Debug Variables
     Random _random = new Random(15);
@@ -87,8 +89,8 @@ public class Board : MonoBehaviour
     {
         GameObject go = new GameObject();
         Peanut peanut = go.AddComponent<Peanut>();
-//        peanut.Setup(random.Next(0, Peanut.NutTypes.Length));
-        peanut.Setup("easy");
+
+        peanut.Setup(_difficulty);
         peanut.Position = pos;
         _board[pos.x, pos.y] = peanut;
 
@@ -568,6 +570,7 @@ public class Board : MonoBehaviour
         _highscore = PlayerPrefs.GetInt("highscore", _highscore);
         _score.SetHighScore(_highscore);
         audio = gameObject.GetComponent<AudioSource>();
+        _difficulty = PlayerPrefs.GetString("difficulty");
     }
 
     private void Start()
@@ -597,7 +600,20 @@ public class Board : MonoBehaviour
 
                     _score.Add(match, _multiplier);
 
-                    _multiplier += 0.5f;
+                    switch (_difficulty)
+                    {
+                        default:
+                            _multiplier += 0.5f;
+                            break;
+                        case "Easy":
+                            goto default;
+                        case "Medium":
+                            _multiplier += .75f;
+                            break;
+                        case "Hard":
+                            _multiplier += 1f;
+                            break;
+                    }
                 }
 
                 toRemove.Sort((a, b) => b.y.CompareTo(a.y));
@@ -640,6 +656,7 @@ public class Board : MonoBehaviour
                             RemoveNut(new Vector2Int(row, i));
                         }
                     }
+
                     AudioClip clip = Resources.Load<AudioClip>("Sounds/match-1");
                     audio.clip = clip;
                     audio.Play();
@@ -745,8 +762,8 @@ public class Board : MonoBehaviour
         }
         
         Vector2Int newPos = pos + direction;
-        if ((int) direction.magnitude == 1 && 
-            newPos.x >= 0 && newPos.x < _board.GetLength(0) && 
+        if ((int) direction.magnitude == 1 &&
+            newPos.x >= 0 && newPos.x < _board.GetLength(0) &&
             newPos.y >= 0 && newPos.y < _board.GetLength(1))
         {
             SwapNuts(pos, newPos);
