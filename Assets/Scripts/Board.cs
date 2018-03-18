@@ -561,7 +561,7 @@ public class Board : MonoBehaviour
         LoadImages();
         //set score object
         _score = GameObject.Find("ScoreBoard").GetComponent<GameScore>();
-        audio = gameObject.AddComponent<AudioSource>();
+        audio = gameObject.GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -627,7 +627,7 @@ public class Board : MonoBehaviour
                     _score.GetComponent<GameScore>().AddEnd();
                     int row = _random.Next(8);
                     bool rowOrColumn = _random.Next(2) == 1;
-                    for (int i = 0; i < _board.GetLength(0); i++)
+                    for (int i = _board.GetLength(0) - 1; i >= 0; i--)
                     {
                         if (rowOrColumn)
                         {
@@ -649,6 +649,7 @@ public class Board : MonoBehaviour
                 else
                 {
                     gameEnded = true;
+                    
                 }
             }
 
