@@ -1218,6 +1218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c3ec4e701d98f54eb46ec6543b9fc85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MasterMixer: {fileID: 24100000, guid: 28f1587867fef364a964233183268dcd, type: 2}
 --- !u!224 &699601950 stripped
 RectTransform:
   m_PrefabParentObject: {fileID: 22400008, guid: b6a1cf4e3eeaf9a4ca38bf8acb910a6d,
@@ -1763,6 +1764,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c3ec4e701d98f54eb46ec6543b9fc85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MasterMixer: {fileID: 24100000, guid: 28f1587867fef364a964233183268dcd, type: 2}
 --- !u!1 &1020181740
 GameObject:
   m_ObjectHideFlags: 0
@@ -2102,6 +2104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c3ec4e701d98f54eb46ec6543b9fc85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MasterMixer: {fileID: 24100000, guid: 28f1587867fef364a964233183268dcd, type: 2}
 --- !u!1 &1058219454
 GameObject:
   m_ObjectHideFlags: 0
