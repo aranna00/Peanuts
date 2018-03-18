@@ -30,9 +30,7 @@ public class Board : MonoBehaviour
     private int _moves = 0;
     private int _maxMoves = 25;
     private float _multiplier = 1;
-    private int _targetScoreEasy = 10000;
-    private int _targetScoreMedium = 15000;
-    private int _targetScoreHard = 20000;
+    private int _targetScore = 10000;
     private AudioSource audio;
 
     // Debug Variables
@@ -804,7 +802,7 @@ public class Board : MonoBehaviour
 
     private bool CheckScoreWin()
     {
-        return _score.GetComponent<GameScore>().Score > _targetScoreEasy;
+        return _score.GetComponent<GameScore>().Score > _targetScore;
     }
 
     private bool CheckScoreLose()
