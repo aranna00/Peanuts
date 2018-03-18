@@ -7,9 +7,8 @@ using UnityEngine.UI;
 
 public class GameScore : MonoBehaviour
 {
-    public float _score = 0;
-    private float _displayedScore = 0;
-    private float _lastScore = 0;
+    private float _score;
+    private float _displayedScore;
     private bool _updated = false;
     [SerializeField] private int _fontSize;
     private float _t;
@@ -43,7 +42,6 @@ public class GameScore : MonoBehaviour
         int points = match.Count - 3;
         int addedScore = (int) (100f * Math.Pow(2, points) * multiplier);
         _score += addedScore;
-        _lastScore = _displayedScore;
         _t = 0f;
         Popup(match,addedScore);
     }
@@ -66,6 +64,16 @@ public class GameScore : MonoBehaviour
         }
 
         Destroy(scorePopup.gameObject, 1);
+    }
+
+    public void SetTargetScore(int targetScore)
+    {
+        GameObject.Find("TargetScore").GetComponent<Text>().text = targetScore.ToString();
+    }
+
+    public void SetRemainingMoves(int moves)
+    {
+        GameObject.Find("Moves").GetComponent<Text>().text = moves.ToString();
     }
 
     private void Init()

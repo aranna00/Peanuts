@@ -561,6 +561,7 @@ public class Board : MonoBehaviour
         LoadImages();
         //set score object
         _score = GameObject.Find("ScoreBoard").GetComponent<GameScore>();
+        _score.SetTargetScore(_targetScore);
         audio = gameObject.GetComponent<AudioSource>();
     }
 
@@ -649,7 +650,6 @@ public class Board : MonoBehaviour
                 else
                 {
                     gameEnded = true;
-                    
                 }
             }
 
@@ -749,6 +749,7 @@ public class Board : MonoBehaviour
             _board[pos2.x, pos2.y] = peanut;
             peanut.Position = pos2;
             _moves++;
+            _score.SetRemainingMoves(_maxMoves - _moves);
         }
         else
         {
