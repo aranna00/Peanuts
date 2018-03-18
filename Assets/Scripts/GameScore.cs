@@ -71,6 +71,11 @@ public class GameScore : MonoBehaviour
         GameObject.Find("TargetScore").GetComponent<Text>().text = targetScore.ToString();
     }
 
+    public void SetHighScore(int highscore)
+    {
+        GameObject.Find("Highscore").GetComponent<Text>().text = highscore.ToString();
+    }
+
     public void SetRemainingMoves(int moves)
     {
         GameObject.Find("Moves").GetComponent<Text>().text = moves.ToString();
