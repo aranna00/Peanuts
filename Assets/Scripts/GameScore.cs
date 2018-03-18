@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.UI;
 
 public class GameScore : MonoBehaviour
@@ -81,7 +82,7 @@ public class GameScore : MonoBehaviour
         _scoreGameObject = GameObject.Find("Score");
         _board = GameObject.Find("Board").GetComponent<Board>();
         _scoreObject = _scoreGameObject.GetComponent<Text>();
-        audio = gameObject.AddComponent<AudioSource>();
+        audio = gameObject.GetComponent<AudioSource>();
     }
 
     private void Start()
