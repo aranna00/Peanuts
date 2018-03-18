@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = System.Random;
 
 public class Board : MonoBehaviour
@@ -34,6 +33,7 @@ public class Board : MonoBehaviour
     private int _maxMoves = 25;
     private float _multiplier = 1;
     private int _targetScore = 10000;
+    private int _highscore;
     private AudioSource audio;
     private string _difficulty = "Easy";
 
@@ -567,6 +567,8 @@ public class Board : MonoBehaviour
         _score = GameObject.Find("ScoreBoard").GetComponent<GameScore>();
         _score.SetTargetScore(_targetScore);
         _score.SetRemainingMoves(_maxMoves - _moves);
+        _highscore = PlayerPrefs.GetInt("highscore", _highscore);
+        _score.SetHighScore(_highscore);
         audio = gameObject.GetComponent<AudioSource>();
         _difficulty = PlayerPrefs.GetString("difficulty");
     }
@@ -667,6 +669,11 @@ public class Board : MonoBehaviour
                 {
                     gameEnded = true;
                     _winScreen.gameObject.SetActive(true);
+                    if (_score.Score > _highscore){
+                        _highscore = (int) _score.Score;
+                        PlayerPrefs.SetInt("highscore", _highscore);
+                        _score.SetHighScore(_highscore);
+                    }
                 }
             }
 
