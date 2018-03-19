@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework.Api;
 using UnityEngine;
 using Random = System.Random;
 
@@ -696,7 +694,7 @@ public class Board : MonoBehaviour
         if (_timeLeft < -6)
         {
             _timeLeft = -1;
-            GiveHint(_canMove[UnityEngine.Random.Range(0,_canMove.Count)][UnityEngine.Random.Range(0,1)]);
+            GiveHint(_canMove[UnityEngine.Random.Range(0,_canMove.Count)][0]);
             _hintShown++;
         }
     }
