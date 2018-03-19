@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework.Api;
 using UnityEngine;
 using Random = System.Random;
 
@@ -18,6 +19,7 @@ public class Board : MonoBehaviour
     private RectTransform _rt;
 
     public ParticleSystem DestroyParticle;
+    public GameObject Nut;
 
     // Board Content
     private readonly Peanut[,] _board = new Peanut[8, 8];
@@ -36,6 +38,7 @@ public class Board : MonoBehaviour
     private int _highscore;
     private AudioSource audio;
     private string _difficulty = "Easy";
+    [SerializeField] private AnimationClip _hintAnimnation;
     private int _hintShown = 0;
 
     // Debug Variables
@@ -88,27 +91,22 @@ public class Board : MonoBehaviour
 
     private Peanut AddNut(Vector2Int pos)
     {
-        GameObject go = new GameObject();
+        GameObject go = Instantiate(Nut, new Vector3(0,0), new Quaternion());
+        
+        // setup peanut
         Peanut peanut = go.AddComponent<Peanut>();
-
         peanut.Setup(_difficulty);
         peanut.Position = pos;
         _board[pos.x, pos.y] = peanut;
-
+        
+        // add peanut image
         string imageToLoad = "Sprites/Nuts/" + peanut.Type;
         Sprite sprite = Resources.Load(imageToLoad, typeof(Sprite)) as Sprite;
-
-        go.name = "Nut";
-        go.transform.SetParent(_boardObject.transform, false);
-
-        SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
-        spriteRenderer.sortingOrder = 0;
-        spriteRenderer.sortingLayerName = "Grid";
-        spriteRenderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
-        spriteRenderer.sprite = sprite;
+        go.GetComponent<SpriteRenderer>().sprite = sprite;
+        go.transform.SetParent(_boardObject.transform, true);
+        
         peanut.GObject = go;
-        peanut.GObject.AddComponent<CircleCollider2D>();
-
+        
         return peanut;
     }
 
@@ -574,6 +572,11 @@ public class Board : MonoBehaviour
         _difficulty = PlayerPrefs.GetString("difficulty");
     }
 
+    private void GiveHint(Vector2Int pos)
+    {
+        _board[pos.x, pos.y].GObject.GetComponent<Animator>().Play("hint");
+    }
+
     private void Start()
     {
         Init();
@@ -631,9 +634,6 @@ public class Board : MonoBehaviour
                 RestartTimer();
             }
         }
-
-        
-
         if (_timeLeft < 0 && _moving) //end of turn
         {
             _moving = false;
@@ -693,18 +693,11 @@ public class Board : MonoBehaviour
             }
         }
         
-        
-        if (_timeLeft < 0 && Math.Abs(_timeLeft % 5000)%.1<=0.01 && Math.Abs(_timeLeft % 5000)>=.01)
+        if (_timeLeft < -6)
         {
-            if (_hintShown<2)
-            {
-                _hintShown++;
-            }
-            else if (_hintShown==2)
-            {
-                _hintShown++;
-//            Insert function here
-            }
+            _timeLeft = -1;
+            GiveHint(_canMove[UnityEngine.Random.Range(0,_canMove.Count)][UnityEngine.Random.Range(0,1)]);
+            _hintShown++;
         }
     }
 

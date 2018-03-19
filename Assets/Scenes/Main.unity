@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 31296036}
   - component: {fileID: 31296037}
   - component: {fileID: 31296038}
+  - component: {fileID: 31296039}
   m_Layer: 5
   m_Name: Board
   m_TagString: Untagged
@@ -296,7 +297,9 @@ MonoBehaviour:
   _lostScreen: {fileID: 1595431500}
   DestroyParticle: {fileID: 198257390759751224, guid: a2dd26d5384011b488f4bb07bccc7758,
     type: 2}
+  Nut: {fileID: 1809947190172316, guid: 88862b93202dbb444a8ac152ee6f144e, type: 2}
   Gamemode: 
+  _hintAnimnation: {fileID: 7400000, guid: 7b743914bee957149bad33b39563b9b4, type: 2}
 --- !u!331 &31296037
 SpriteMask:
   m_ObjectHideFlags: 0
@@ -421,6 +424,23 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!95 &31296039
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 31296032}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: fa0a830eb5e6e774caf4e23503b28bae, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &49704056
 GameObject:
   m_ObjectHideFlags: 0

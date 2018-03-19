@@ -10,6 +10,8 @@ public class Peanut : MonoBehaviour
     // Peanut properties
     private string _type;
     public Vector2Int Position;
+    public bool Animating;
+    private int _startTime;
 
     // Board
     private Board _board;
@@ -48,6 +50,20 @@ public class Peanut : MonoBehaviour
                 break;
         }
         Setup();
+    }
+
+    public void startAnimation(int startTime)
+    {
+        _startTime = startTime;
+        Animating = true;
+    }
+
+    private void FixedUpdate()
+    {
+        if (Animating)
+        {
+            
+        }
     }
 
     private void OnMouseDown()

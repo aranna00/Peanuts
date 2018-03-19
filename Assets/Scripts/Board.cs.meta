@@ -5,7 +5,11 @@ licenseType: Free
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - _winScreen: {instanceID: 0}
+  - _lostScreen: {instanceID: 0}
+  - DestroyParticle: {instanceID: 0}
+  - _hintAnimnation: {fileID: 7400000, guid: 7b743914bee957149bad33b39563b9b4, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
