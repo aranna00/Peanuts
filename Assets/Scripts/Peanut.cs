@@ -41,10 +41,10 @@ public class Peanut : MonoBehaviour
                 NutTypes = new List<string> {"Coconut", "Hazelnut", "Peanut", "Pistachio", "Walnut"};
                 break;
             case "Medium":
-                NutTypes = new List<string> {"Almond", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pistachio", "Walnut"};
+                NutTypes = new List<string> {"Coconut", "Hazelnut", "Peanut", "Pistachio", "Walnut", "Cashew"};
                 break;
             case "Hard":
-                NutTypes = new List<string> {"Almond", "Brazil", "Cashew", "Coconut", "Hazelnut", "Peanut", "Pecan", "Pistachio", "Walnut"};
+                NutTypes = new List<string> {"Coconut", "Hazelnut", "Peanut", "Pistachio", "Walnut", "Cashew", "Almond"};
                 break;
         }
         Setup();

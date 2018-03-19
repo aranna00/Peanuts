@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -35,6 +36,7 @@ public class Board : MonoBehaviour
     private int _highscore;
     private AudioSource audio;
     private string _difficulty = "Easy";
+    private int _hintShown = 0;
 
     // Debug Variables
     Random _random = new Random(15);
@@ -630,6 +632,8 @@ public class Board : MonoBehaviour
             }
         }
 
+        
+
         if (_timeLeft < 0 && _moving) //end of turn
         {
             _moving = false;
@@ -668,7 +672,8 @@ public class Board : MonoBehaviour
                 {
                     gameEnded = true;
                     _winScreen.gameObject.SetActive(true);
-                    if (_score.Score > _highscore){
+                    if (_score.Score > _highscore)
+                    {
                         _highscore = (int) _score.Score;
                         PlayerPrefs.SetInt("highscore", _highscore);
                         _score.SetHighScore(_highscore);
@@ -685,6 +690,20 @@ public class Board : MonoBehaviour
             if (_canMove.Count == 0)
             {
                 ResetBoard();
+            }
+        }
+        
+        
+        if (_timeLeft < 0 && Math.Abs(_timeLeft % 5000)%.1<=0.01 && Math.Abs(_timeLeft % 5000)>=.01)
+        {
+            if (_hintShown<2)
+            {
+                _hintShown++;
+            }
+            else if (_hintShown==2)
+            {
+                _hintShown++;
+//            Insert function here
             }
         }
     }
@@ -794,6 +813,7 @@ public class Board : MonoBehaviour
             peanut.Position = pos2;
             _moves++;
             _score.SetRemainingMoves(_maxMoves - _moves);
+            _hintShown = 0;
         }
         else
         {
